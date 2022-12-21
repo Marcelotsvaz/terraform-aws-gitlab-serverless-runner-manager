@@ -5,9 +5,12 @@
 # Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
 
 
+
 locals {
 	lambda_function_name = "${var.prefix}-${var.identifier}-lambda"	# Avoid cyclic dependency.
 }
+
+
 
 # 
 # Lambda Function.
@@ -21,10 +24,12 @@ resource "aws_lambda_function" "lambda" {
 	source_code_hash = data.archive_file.lambda.output_base64sha256
 	handler = "lambda.main"
 	timeout = 10
+	# reserved_concurrent_executions = 1
 	
 	environment {
 		variables = {
 			secretToken = ""
+			spotFleetId = aws_spot_fleet_request.fleet.id
 		}
 	}
 	
@@ -96,11 +101,11 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 data "aws_iam_policy_document" "lambda_role_policy" {
 	# Used in lambda.py.
 	statement {
-		sid = "ec2DescribeInstances"
+		sid = "ec2ModifySpotFleetRequest"
 		
-		actions = [ "ec2:DescribeInstances" ]
+		actions = [ "ec2:ModifySpotFleetRequest" ]
 		
-		resources = [ "*" ]
+		resources = [ "arn:aws:ec2:${data.aws_arn.arn.region}:${data.aws_arn.arn.account}:spot-fleet-request/${aws_spot_fleet_request.fleet.id}" ]
 	}
 	
 	# Used by Lambda.
@@ -114,4 +119,10 @@ data "aws_iam_policy_document" "lambda_role_policy" {
 		
 		resources = [ "${aws_cloudwatch_log_group.lambda_log_group.arn}:*" ]
 	}
+}
+
+
+data "aws_arn" "arn" {
+	# Get region and account ID to construct Spot Fleet ARN.
+	arn = aws_launch_template.launch_template.arn
 }

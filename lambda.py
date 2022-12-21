@@ -20,6 +20,7 @@ def main( event, context ):
 	
 	# Env vars from Terraform.
 	secretToken = os.environ['secretToken']
+	spotFleetId = os.environ['spotFleetId']
 	
 	
 	# Validate request.
@@ -45,5 +46,13 @@ def main( event, context ):
 	
 	# Launch runner.
 	logging.info( f'Launching runner...' )
+	ec2 = boto3.client( 'ec2' )
+	response = ec2.modify_spot_fleet_request(
+		SpotFleetRequestId = spotFleetId,
+		TargetCapacity = 1,
+	)
+	
+	if not response['Return']:
+		return { 'statusCode': 400 }
 	
 	return { 'statusCode': 200 }

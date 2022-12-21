@@ -6,23 +6,23 @@
 
 
 
-# resource "aws_spot_fleet_request" "fleet" {
-# 	target_capacity = 1
-# 	instance_interruption_behaviour = "stop"
-# 	terminate_instances_on_delete = true
-# 	iam_fleet_role = "arn:aws:iam::983585628015:role/aws-ec2-spot-fleet-tagging-role"	# TODO
+resource "aws_spot_fleet_request" "fleet" {
+	target_capacity = 0
+	instance_interruption_behaviour = "stop"
+	terminate_instances_on_delete = true
+	iam_fleet_role = "arn:aws:iam::983585628015:role/aws-ec2-spot-fleet-tagging-role"	# TODO
 	
-# 	launch_template_config {
-# 		launch_template_specification {
-# 			id = aws_launch_template.launch_template.id
-# 			version = aws_launch_template.launch_template.latest_version
-# 		}
-# 	}
+	launch_template_config {
+		launch_template_specification {
+			id = aws_launch_template.launch_template.id
+			version = aws_launch_template.launch_template.latest_version
+		}
+	}
 	
-# 	tags = {
-# 		Name = "${var.name} Spot Fleet Request"
-# 	}
-# }
+	tags = {
+		Name = "${var.name} Spot Fleet Request"
+	}
+}
 
 
 resource "aws_launch_template" "launch_template" {
