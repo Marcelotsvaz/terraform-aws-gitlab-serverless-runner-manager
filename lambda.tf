@@ -28,7 +28,7 @@ resource "aws_lambda_function" "lambda" {
 	
 	environment {
 		variables = {
-			secretToken = ""
+			secretToken = random_password.webhook_token.result
 			spotFleetId = aws_spot_fleet_request.fleet.id
 		}
 	}
