@@ -72,7 +72,7 @@ resource "aws_launch_template" "launch_template" {
 
 
 module "user_data" {
-	source = "./submodules/user_data"
+	source = "./modules/user_data"
 	
 	input_dir = "${path.module}/scripts"
 	
