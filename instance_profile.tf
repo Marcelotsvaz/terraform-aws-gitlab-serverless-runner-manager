@@ -57,6 +57,6 @@ data "aws_iam_policy_document" "role_policy" {
 			"s3:DeleteObject",
 		]
 		
-		resources = [ "${aws_s3_bucket.bucket.arn}/gitlabRunnerCache/*" ]
+		resources = [ "${aws_s3_bucket.bucket.arn}/${local.bucket_prefix}/*" ]
 	}
 }

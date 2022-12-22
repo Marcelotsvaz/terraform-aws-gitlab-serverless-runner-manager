@@ -32,7 +32,7 @@ resource "aws_launch_template" "launch_template" {
 	image_id = data.aws_ami.ami.id
 	instance_type = "t3a.medium"
 	iam_instance_profile { arn = aws_iam_instance_profile.instance_profile.arn }
-	user_data = "H4sIAAAAAAAAA+3QwWqDQBAGYM99ii095FAaXe2u5FIISUisGKRpA/VSNrpo1GjY1UI89Nljekqh0FNoC/93mWVmYGdmL5VX6UZUsRzqzLgIq+cydorUZdZ5/GTfU8NyLcfpH9zq85Rxzg1iXWacr9p+eUWIsRMqlmXd6HfRfdf3U/2furk2W63MzbYyN0JnVzLOajLQOruTic0YHZFxb+IsOzGhZTT16PJ5xk45b+Gm813uiqeyyOvQ9wOHBbfJnKdBkU5H3iwq7Zf1nj++hpqsxxEJVZ3LuNFktVoQXx4G5IF8nJ/VHPb/mqJtslptO5m8FfKgf/tAAAAAAAAAAAAAAAAAAAAAAAAAf9QRk0aIXwAoAAA="
+	user_data = module.user_data.content_base64
 	ebs_optimized = true
 	
 	block_device_mappings {
@@ -67,6 +67,30 @@ resource "aws_launch_template" "launch_template" {
 	
 	tags = {
 		Name = "${var.name} Launch Template"
+	}
+}
+
+
+module "user_data" {
+	source = "./submodules/user_data"
+	
+	input_dir = "${path.module}/scripts"
+	
+	files = [ "perInstance.sh" ]
+	templates = [ "config.toml.tftpl" ]
+	
+	context = {
+		runner_name = var.name
+		runner_id = gitlab_runner.runner.id
+		runner_authentication_token = gitlab_runner.runner.authentication_token
+		cache_bucket_region = aws_s3_bucket.bucket.region
+		cache_bucket = aws_s3_bucket.bucket.id
+		cache_prefix = local.bucket_prefix
+	}
+	
+	environment = {
+		hostname = "gitlab-runner"
+		ssh_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH7gGmj7aRlkjoPKKM35M+dG6gMkgD9IEZl2UVp6JYPs VAZ Projects SSH Key"
 	}
 }
 

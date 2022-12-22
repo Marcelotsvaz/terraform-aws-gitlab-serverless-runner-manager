@@ -21,11 +21,11 @@ variable "gitlab_project_id" {
 
 
 locals {
-	project_name = "GitLab Runner"
-	project_code = "gitlabRunner"
-	region = "sa-east-1"
+	name = "Example GitLab Runner"
+	prefix = "example"
+	identifier = "gitlabRunner"
 	
 	default_tags = {
-		Project = local.project_name
+		Project = local.name
 	}
 }

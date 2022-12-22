@@ -52,3 +52,11 @@ variable "default_tags" {
 	type = map( string )
 	default = {}
 }
+
+
+
+# Locals.
+#-------------------------------------------------------------------------------
+locals {
+	bucket_prefix = "gitlabRunnerCache"
+}

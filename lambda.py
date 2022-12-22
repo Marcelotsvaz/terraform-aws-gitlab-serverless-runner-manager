@@ -25,6 +25,9 @@ def main( event, context ):
 	
 	# Validate request.
 	try:
+		if event['headers']['x-gitlab-event'] != 'Job Hook':
+			raise
+		
 		gitlabEventData = json.loads( event['body'] )
 		jobStatus = gitlabEventData['build_status']
 	except:
@@ -53,6 +56,7 @@ def main( event, context ):
 	)
 	
 	if not response['Return']:
+		logging.info( f'Error launching runner.' )
 		return { 'statusCode': 400 }
 	
 	return { 'statusCode': 200 }

@@ -1,0 +1,36 @@
+concurrent = 10
+check_interval = 1
+shutdown_timeout = 0
+
+
+[session_server]
+	session_timeout = 1800
+
+
+[[runners]]
+	name = "${runner_name}"
+	id = ${runner_id}
+	url = "https://gitlab.com/"
+	token = "${runner_authentication_token}"
+	executor = "docker"
+	
+	[runners.feature_flags]
+		FF_USE_IMPROVED_URL_MASKING = true
+		FF_ENABLE_JOB_CLEANUP = true
+		FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR = true
+		FF_SCRIPT_SECTIONS = true
+	
+	[runners.docker]
+		image = "alpine:latest"
+		privileged = true
+		tls_verify = true
+		volumes = [ "/certs/client" ]
+	
+	[runners.cache]
+		Type = "s3"
+		Path = "${cache_prefix}"
+		Shared = true
+		
+		[runners.cache.s3]
+			BucketName = "${cache_bucket}"
+			BucketLocation = "${cache_bucket_region}"

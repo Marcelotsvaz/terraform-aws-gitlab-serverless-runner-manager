@@ -10,9 +10,9 @@ module "gitlab_runner" {
 	source = "../"
 	
 	# Name.
-	name = "${local.project_name} GitLab Runner"
-	identifier = "gitlabRunner"
-	prefix = local.project_code
+	name = local.name
+	prefix = local.prefix
+	identifier = local.identifier
 	
 	# Network.
 	subnet_id = "subnet-08bbbb15ef90c7fda"

@@ -22,6 +22,7 @@ resource "gitlab_project_hook" "hook" {
 	url = aws_lambda_function_url.lambda_url.function_url
 	token = random_password.webhook_token.result
 	job_events = true
+	push_events = false
 }
 
 
