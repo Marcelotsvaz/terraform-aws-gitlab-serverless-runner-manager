@@ -37,6 +37,14 @@ variable "vpc_security_group_ids" {
 }
 
 
+# GitLab.
+#-------------------------------------------------------------------------------
+variable "project_id" {
+	description = ""
+	type = string
+}
+
+
 # Tags.
 #-------------------------------------------------------------------------------
 variable "default_tags" {
