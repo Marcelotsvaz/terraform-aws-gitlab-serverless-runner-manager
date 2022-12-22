@@ -7,3 +7,6 @@
 
 
 /deployment/
+/example/deployment/
+/example/.terraform/
+/example/*.tfstate*
