@@ -21,13 +21,3 @@ terraform {
 	
 	required_version = ">= 1.3.6"
 }
-
-
-provider "aws" {
-	default_tags { tags = local.default_tags }
-}
-
-
-provider "gitlab" {
-	token = var.gitlab_access_token
-}

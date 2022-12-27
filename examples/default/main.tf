@@ -7,7 +7,7 @@
 
 
 module "gitlab_runner" {
-	source = "../"
+	source = "../../"
 	
 	# Name.
 	name = local.name
