@@ -3,7 +3,7 @@
 
 provider "registry.terraform.io/gitlabhq/gitlab" {
   version     = "3.20.0"
-  constraints = "~> 3.20"
+  constraints = ">= 3.20.0, ~> 3.20"
   hashes = [
     "h1:KCnjw82fy5ueEevrYmzBcPyRNcR5idRH+f3ahkj6CbU=",
     "zh:0428e9904b2fabf2001bdf83ac68af8287c0c790278ca0a8ed0c895db103af9f",
@@ -25,7 +25,8 @@ provider "registry.terraform.io/gitlabhq/gitlab" {
 }
 
 provider "registry.terraform.io/hashicorp/archive" {
-  version = "2.2.0"
+  version     = "2.2.0"
+  constraints = ">= 2.2.0"
   hashes = [
     "h1:CIWi5G6ob7p2wWoThRQbOB8AbmFlCzp7Ka81hR3cVp0=",
     "zh:06bd875932288f235c16e2237142b493c2c2b6aba0e82e8c85068332a8d2a29e",
@@ -44,7 +45,7 @@ provider "registry.terraform.io/hashicorp/archive" {
 
 provider "registry.terraform.io/hashicorp/aws" {
   version     = "4.48.0"
-  constraints = "~> 4.47"
+  constraints = ">= 4.48.0, ~> 4.48"
   hashes = [
     "h1:Fz26mWZmM9syrY91aPeTdd3hXG4DvMR81ylWC9xE2uA=",
     "zh:08f5e3c5256a4fbd5c988863d10e5279172b2470fec6d4fb13c372663e7f7cac",
@@ -85,7 +86,8 @@ provider "registry.terraform.io/hashicorp/external" {
 }
 
 provider "registry.terraform.io/hashicorp/random" {
-  version = "3.4.3"
+  version     = "3.4.3"
+  constraints = ">= 3.4.0"
   hashes = [
     "h1:xZGZf18JjMS06pFa4NErzANI98qi59SEcBsOcS2P2yQ=",
     "zh:41c53ba47085d8261590990f8633c8906696fa0a3c4b384ff6a7ecbf84339752",
