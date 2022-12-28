@@ -75,7 +75,8 @@ resource "aws_launch_template" "main" {
 
 
 module "user_data" {
-	source = "./modules/user_data"
+	source = "gitlab.com/marcelotsvaz/user-data/external"
+	version = "~> 1.0"
 	
 	input_dir = "${path.module}/files"
 	
