@@ -6,7 +6,7 @@
 
 
 
-data "gitlab_project" "project" {
+data "gitlab_project" "main" {
 	path_with_namespace = var.project_id
 }
 
@@ -16,16 +16,16 @@ resource "random_password" "webhook_token" {
 }
 
 
-resource "gitlab_project_hook" "hook" {
-	project = data.gitlab_project.project.id
+resource "gitlab_project_hook" "main" {
+	project = data.gitlab_project.main.id
 	
-	url = aws_lambda_function_url.lambda_url.function_url
+	url = aws_lambda_function_url.main.function_url
 	token = random_password.webhook_token.result
 	job_events = true
 	push_events = false
 }
 
 
-resource "gitlab_runner" "runner" {
-	registration_token = data.gitlab_project.project.runners_token
+resource "gitlab_runner" "main" {
+	registration_token = data.gitlab_project.main.runners_token
 }

@@ -13,15 +13,15 @@ locals {
 
 
 # 
-# Lambda Function.
+# Serverless agent.
 #-------------------------------------------------------------------------------
-resource "aws_lambda_function" "lambda" {
+resource "aws_lambda_function" "main" {
 	function_name = local.lambda_function_name
-	role = aws_iam_role.lambda_role.arn
+	role = aws_iam_role.agent.arn
 	
 	runtime = "python3.9"
-	filename = data.archive_file.lambda.output_path
-	source_code_hash = data.archive_file.lambda.output_base64sha256
+	filename = data.archive_file.lambda_module.output_path
+	source_code_hash = data.archive_file.lambda_module.output_base64sha256
 	handler = "lambda.main"
 	timeout = 10
 	# reserved_concurrent_executions = 1
@@ -29,12 +29,12 @@ resource "aws_lambda_function" "lambda" {
 	environment {
 		variables = {
 			secretToken = random_password.webhook_token.result
-			spotFleetId = aws_spot_fleet_request.fleet.id
+			spotFleetId = aws_spot_fleet_request.main.id
 		}
 	}
 	
 	# Make sure the log group is created before the function because we removed the implicit dependency.
-	depends_on = [ aws_cloudwatch_log_group.lambda_log_group ]
+	depends_on = [ aws_cloudwatch_log_group.main ]
 	
 	tags = {
 		Name = "${var.name} Lambda"
@@ -42,20 +42,20 @@ resource "aws_lambda_function" "lambda" {
 }
 
 
-data "archive_file" "lambda" {
+data "archive_file" "lambda_module" {
 	type = "zip"
 	source_file = "${path.module}/lambda.py"
 	output_path = "deployment/${var.prefix}/${var.identifier}/lambda.zip"
 }
 
 
-resource "aws_lambda_function_url" "lambda_url" {
-	function_name = aws_lambda_function.lambda.function_name
+resource "aws_lambda_function_url" "main" {
+	function_name = aws_lambda_function.main.function_name
 	authorization_type = "NONE"
 }
 
 
-resource "aws_cloudwatch_log_group" "lambda_log_group" {
+resource "aws_cloudwatch_log_group" "main" {
 	name = "/aws/lambda/${local.lambda_function_name}"
 	
 	tags = {
@@ -68,14 +68,15 @@ resource "aws_cloudwatch_log_group" "lambda_log_group" {
 # 
 # Lambda IAM Role.
 #-------------------------------------------------------------------------------
-resource "aws_iam_role" "lambda_role" {
+resource "aws_iam_role" "agent" {
 	name = "${var.prefix}-${var.identifier}-lambdaRole"
-	assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+	assume_role_policy = data.aws_iam_policy_document.agent_assume_role.json
+	managed_policy_arns = []
 	
 	inline_policy {
 		name = "${var.prefix}-${var.identifier}-lambdaRolePolicy"
 		
-		policy = data.aws_iam_policy_document.lambda_role_policy.json
+		policy = data.aws_iam_policy_document.agent_role.json
 	}
 	
 	tags = {
@@ -84,7 +85,7 @@ resource "aws_iam_role" "lambda_role" {
 }
 
 
-data "aws_iam_policy_document" "lambda_assume_role_policy" {
+data "aws_iam_policy_document" "agent_assume_role" {
 	statement {
 		sid = "lambdaAssumeRole"
 		
@@ -98,14 +99,14 @@ data "aws_iam_policy_document" "lambda_assume_role_policy" {
 }
 
 
-data "aws_iam_policy_document" "lambda_role_policy" {
+data "aws_iam_policy_document" "agent_role" {
 	# Used in lambda.py.
 	statement {
 		sid = "ec2ModifySpotFleetRequest"
 		
 		actions = [ "ec2:ModifySpotFleetRequest" ]
 		
-		resources = [ "arn:aws:ec2:${data.aws_arn.arn.region}:${data.aws_arn.arn.account}:spot-fleet-request/${aws_spot_fleet_request.fleet.id}" ]
+		resources = [ "arn:aws:ec2:${data.aws_arn.main.region}:${data.aws_arn.main.account}:spot-fleet-request/${aws_spot_fleet_request.main.id}" ]
 	}
 	
 	# Used by Lambda.
@@ -117,12 +118,12 @@ data "aws_iam_policy_document" "lambda_role_policy" {
 			"logs:PutLogEvents",
 		]
 		
-		resources = [ "${aws_cloudwatch_log_group.lambda_log_group.arn}:*" ]
+		resources = [ "${aws_cloudwatch_log_group.main.arn}:*" ]
 	}
 }
 
 
-data "aws_arn" "arn" {
+data "aws_arn" "main" {
 	# Get region and account ID to construct Spot Fleet ARN.
-	arn = aws_launch_template.launch_template.arn
+	arn = aws_launch_template.main.arn
 }

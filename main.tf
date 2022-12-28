@@ -6,7 +6,7 @@
 
 
 
-resource "aws_spot_fleet_request" "fleet" {
+resource "aws_spot_fleet_request" "main" {
 	target_capacity = 0
 	instance_interruption_behaviour = "stop"
 	terminate_instances_on_delete = true
@@ -14,8 +14,8 @@ resource "aws_spot_fleet_request" "fleet" {
 	
 	launch_template_config {
 		launch_template_specification {
-			id = aws_launch_template.launch_template.id
-			version = aws_launch_template.launch_template.latest_version
+			id = aws_launch_template.main.id
+			version = aws_launch_template.main.latest_version
 		}
 	}
 	
@@ -25,13 +25,13 @@ resource "aws_spot_fleet_request" "fleet" {
 }
 
 
-resource "aws_launch_template" "launch_template" {
+resource "aws_launch_template" "main" {
 	name = "${var.prefix}-${var.identifier}-launchTemplate"
 	update_default_version = true
 	
-	image_id = data.aws_ami.ami.id
+	image_id = data.aws_ami.main.id
 	instance_type = "t3a.medium"
-	iam_instance_profile { arn = aws_iam_instance_profile.instance_profile.arn }
+	iam_instance_profile { arn = aws_iam_instance_profile.main.arn }
 	user_data = module.user_data.content_base64
 	ebs_optimized = true
 	
@@ -81,10 +81,10 @@ module "user_data" {
 	
 	context = {
 		runner_name = var.name
-		runner_id = gitlab_runner.runner.id
-		runner_authentication_token = gitlab_runner.runner.authentication_token
-		cache_bucket_region = aws_s3_bucket.bucket.region
-		cache_bucket = aws_s3_bucket.bucket.id
+		runner_id = gitlab_runner.main.id
+		runner_authentication_token = gitlab_runner.main.authentication_token
+		cache_bucket_region = aws_s3_bucket.main.region
+		cache_bucket = aws_s3_bucket.main.id
 		cache_prefix = local.bucket_prefix
 	}
 	
@@ -95,7 +95,7 @@ module "user_data" {
 }
 
 
-data "aws_ami" "ami" {
+data "aws_ami" "main" {
 	most_recent = true
 	owners = [ "self" ]
 	

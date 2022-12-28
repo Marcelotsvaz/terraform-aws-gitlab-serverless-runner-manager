@@ -6,7 +6,7 @@
 
 
 
-resource "aws_s3_bucket" "bucket" {
+resource "aws_s3_bucket" "main" {
 	bucket = lower( "${var.prefix}-${var.identifier}-bucket" )
 	force_destroy = true
 	
@@ -16,8 +16,8 @@ resource "aws_s3_bucket" "bucket" {
 }
 
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
-	bucket = aws_s3_bucket.bucket.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
+	bucket = aws_s3_bucket.main.id
 	
 	rule {
 		apply_server_side_encryption_by_default {
@@ -27,8 +27,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
 }
 
 
-resource "aws_s3_bucket_public_access_block" "bucket" {
-	bucket = aws_s3_bucket.bucket.id
+resource "aws_s3_bucket_public_access_block" "main" {
+	bucket = aws_s3_bucket.main.id
 	
 	block_public_acls = true
 	ignore_public_acls = true
