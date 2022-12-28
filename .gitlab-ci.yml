@@ -7,7 +7,7 @@
 
 
 stages:
-  - publish
+  - release
 
 
 variables:
@@ -20,26 +20,24 @@ variables:
 # 
 # Jobs.
 #-----------------------------------------------------------------------------------------------------------------------
-publishTerraformModule:
-    stage: publish
+gitlabRegistry:
+    stage: release
     
-    image: curlimages/curl:latest
+    image: curlimages/curl:7.87.0
     
     variables:
-        moduleName: ${CI_PROJECT_NAME}
-        moduleSystem: aws
+        moduleName: gitlab-runner-agentless
+        moduleProvider: aws
         moduleVersion: ${CI_COMMIT_TAG}
-        moduleArchive: ${moduleName}-${moduleSystem}-${moduleVersion}.tgz
         tokenHeader: 'JOB-TOKEN: ${CI_JOB_TOKEN}'
     
     script:
-      - tar -vczf ${moduleArchive} --exclude=./.git .
+      - tar -czvf ${moduleName}.tar.gz --exclude ./.git .
       - curl
-            --fail-with-body
-            --location
             --header "${tokenHeader}"
-            --upload-file ${moduleArchive}
-            ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/terraform/modules/${moduleName}/${moduleSystem}/${moduleVersion}/file
+            --upload-file ${moduleName}.tar.gz
+            --fail-with-body
+            ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/terraform/modules/${moduleName}/${moduleProvider}/${moduleVersion}/file
     
     rules:
       - if: $CI_COMMIT_TAG
