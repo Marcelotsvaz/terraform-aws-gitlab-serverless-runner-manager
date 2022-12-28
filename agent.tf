@@ -22,7 +22,7 @@ resource "aws_lambda_function" "main" {
 	runtime = "python3.9"
 	filename = data.archive_file.lambda_module.output_path
 	source_code_hash = data.archive_file.lambda_module.output_base64sha256
-	handler = "lambda.main"
+	handler = "agent.main"
 	timeout = 10
 	# reserved_concurrent_executions = 1
 	
@@ -37,15 +37,15 @@ resource "aws_lambda_function" "main" {
 	depends_on = [ aws_cloudwatch_log_group.main ]
 	
 	tags = {
-		Name = "${var.name} Lambda"
+		Name = "${var.name} Agent Lambda"
 	}
 }
 
 
 data "archive_file" "lambda_module" {
 	type = "zip"
-	source_file = "${path.module}/lambda.py"
-	output_path = "deployment/${var.prefix}/${var.identifier}/lambda.zip"
+	source_file = "${path.module}/files/agent.py"
+	output_path = "deployment/${var.prefix}/${var.identifier}/agent.zip"
 }
 
 
