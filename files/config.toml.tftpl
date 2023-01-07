@@ -1,6 +1,5 @@
 concurrent = 10
 check_interval = 1
-shutdown_timeout = 0
 
 
 [session_server]
@@ -16,8 +15,6 @@ shutdown_timeout = 0
 	
 	[runners.feature_flags]
 		FF_USE_IMPROVED_URL_MASKING = true
-		FF_ENABLE_JOB_CLEANUP = true
-		FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR = true
 		FF_SCRIPT_SECTIONS = true
 	
 	[runners.docker]

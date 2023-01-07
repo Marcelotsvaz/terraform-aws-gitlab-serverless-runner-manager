@@ -14,6 +14,7 @@ variables:
     # Fix wrong permissions for application image and instance user data due to runner setting "umask 0000" before
     # cloning the repository.
     FF_DISABLE_UMASK_FOR_DOCKER_EXECUTOR: 'true'
+    GIT_STRATEGY: clone
 
 
 
