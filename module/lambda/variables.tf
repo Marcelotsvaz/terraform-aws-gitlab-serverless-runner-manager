@@ -48,6 +48,15 @@ variable "environment" {
 }
 
 
+# Permissions.
+#-------------------------------------------------------------------------------
+variable "policies" {
+	description = "Set of policies for the Lambda Function IAM role."
+	type = set( object( { json = string } ) )
+	default = []
+}
+
+
 
 # Locals.
 #-------------------------------------------------------------------------------
