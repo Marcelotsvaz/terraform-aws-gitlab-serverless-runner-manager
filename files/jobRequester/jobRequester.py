@@ -8,6 +8,7 @@
 
 import logging
 import os
+import boto3
 import requests
 
 
@@ -19,17 +20,35 @@ def main( event, context ):
 	# Env vars from Terraform.
 	runnerToken = os.environ['runnerToken']
 	gitlabUrl = os.environ['gitlabUrl']
+	jobsTableName = os.environ['jobsTableName']
+	
+	
+	# Get DynamoDB table.
+	table = boto3.resource( 'dynamodb' ).Table( jobsTableName )
 	
 	
 	# Get new jobs.
-	response = requests.post( f'{gitlabUrl}/api/v4/jobs/request', json = {
+	while job := requestJob( gitlabUrl, runnerToken ):
+		jobId = job['job_info']['id']
+		logging.info( f'Found new job. ID: {jobId}' )
+		
+		table.put_item( Item = job )
+		
+
+
+
+def requestJob( url, runnerToken ):
+	'''
+	
+	'''
+	
+	response = requests.post( f'{url}/api/v4/jobs/request', json = {
 		'token': runnerToken,
 	} )
 	
-	if response.status_code == 204:
-		logging.info( 'No new jobs.' )
-	elif response.status_code == 201:
-		jobId = response.json()['job_info']['id']
-		logging.info( f'New job found. ID: {jobId}' )
+	if response.status_code == 201:
+		return response.json()
+	elif response.status_code == 204:
+		return None
 	else:
-		logging.error( f'Error. Response code is {response.status_code}' )
+		raise Exception( f'Invalid status code ({response.status_code}) while requesting job.' )

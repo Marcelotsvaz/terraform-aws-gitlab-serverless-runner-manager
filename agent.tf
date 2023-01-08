@@ -9,7 +9,7 @@
 # 
 # Job requester.
 #-------------------------------------------------------------------------------
-module "jobRequester" {
+module "job_requester" {
 	source = "./module/lambda"
 	
 	name = "Job Requester"
@@ -20,25 +20,26 @@ module "jobRequester" {
 	handler = "jobRequester.main"
 	timeout = 10
 	
-	# role_policy = data.aws_iam_policy_document.load_balancer_policy
+	policies = [ data.aws_iam_policy_document.job_requester ]
 	
 	environment = {
 		runnerToken = gitlab_runner.main.authentication_token
 		gitlabUrl = "https://gitlab.com"
+		jobsTableName = aws_dynamodb_table.main.name
 	}
 }
 
 
-# data "aws_iam_policy_document" "agent_role" {
-# 	# Used in lambda.py.
-# 	statement {
-# 		sid = "ec2ModifySpotFleetRequest"
+data "aws_iam_policy_document" "job_requester" {
+	# Used in jobRequester.py.
+	statement {
+		sid = "dynamodbPutItem"
 		
-# 		actions = [ "ec2:ModifySpotFleetRequest" ]
+		actions = [ "dynamodb:PutItem" ]
 		
-# 		resources = [ "arn:aws:ec2:${data.aws_arn.main.region}:${data.aws_arn.main.account}:spot-fleet-request/${aws_spot_fleet_request.main.id}" ]
-# 	}
-# }
+		resources = [ aws_dynamodb_table.main.arn ]
+	}
+}
 
 
 
@@ -56,21 +57,28 @@ module "provisioner" {
 	handler = "provisioner.main"
 	timeout = 10
 	
-	# role_policy = data.aws_iam_policy_document.load_balancer_policy
-	
 	environment = {
 		foo = "bar"
 	}
 }
 
 
-# data "aws_iam_policy_document" "agent_role" {
-# 	# Used in lambda.py.
-# 	statement {
-# 		sid = "ec2ModifySpotFleetRequest"
-		
-# 		actions = [ "ec2:ModifySpotFleetRequest" ]
-		
-# 		resources = [ "arn:aws:ec2:${data.aws_arn.main.region}:${data.aws_arn.main.account}:spot-fleet-request/${aws_spot_fleet_request.main.id}" ]
-# 	}
-# }
+
+# 
+# Job database.
+#-------------------------------------------------------------------------------
+resource "aws_dynamodb_table" "main" {
+	name = "jobs"
+	hash_key = "id"
+	
+	billing_mode = "PAY_PER_REQUEST"
+	
+	attribute {
+		name = "id"
+		type = "N"
+	}
+	
+	tags = {
+		Name = "${var.name} Job Database"
+	}
+}
