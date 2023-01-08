@@ -6,16 +6,15 @@
 
 
 
-import os
-import boto3
-import json
 import logging
+import os
+import json
+import boto3
 
 
 
 def main( event, context ):
 	logging.getLogger().setLevel( logging.INFO )
-	logging.info( event )	# TEMP
 	
 	
 	# Env vars from Terraform.
@@ -31,24 +30,24 @@ def main( event, context ):
 		gitlabEventData = json.loads( event['body'] )
 		jobStatus = gitlabEventData['build_status']
 	except:
-		logging.info( f'Invalid request.' )
+		logging.info( 'Invalid request.' )
 		return { 'statusCode': 400 }
 	
 	
 	# Authorization.
 	if event['headers']['x-gitlab-token'] != secretToken:
-		logging.info( f'Invalid secret token.' )
+		logging.info( 'Invalid secret token.' )
 		return { 'statusCode': 400 }
 	
 	
 	# Check job status.
-	logging.info( f'Job event: {jobStatus}' )
+	logging.info( 'Job event: {jobStatus}' )
 	if jobStatus != 'created':
 		return { 'statusCode': 200 }
 	
 	
 	# Launch runner.
-	logging.info( f'Launching runner...' )
+	logging.info( 'Launching runner...' )
 	ec2 = boto3.client( 'ec2' )
 	response = ec2.modify_spot_fleet_request(
 		SpotFleetRequestId = spotFleetId,
@@ -56,7 +55,7 @@ def main( event, context ):
 	)
 	
 	if not response['Return']:
-		logging.info( f'Error launching runner.' )
+		logging.info( 'Error launching runner.' )
 		return { 'statusCode': 400 }
 	
 	return { 'statusCode': 200 }

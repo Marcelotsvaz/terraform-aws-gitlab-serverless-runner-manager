@@ -35,7 +35,7 @@ resource "aws_lambda_function" "main" {
 
 data "archive_file" "lambda_module" {
 	type = "zip"
-	source_file = var.source_file
+	source_dir = var.source_dir
 	output_path = "deployment/${var.prefix}/${var.identifier}/module.zip"
 }
 

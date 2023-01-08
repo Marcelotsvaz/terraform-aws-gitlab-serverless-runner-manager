@@ -26,8 +26,8 @@ variable "prefix" {
 
 # Code.
 #-------------------------------------------------------------------------------
-variable "source_file" {
-	description = "Path of source file."
+variable "source_dir" {
+	description = "Path of module."
 	type = string
 }
 
