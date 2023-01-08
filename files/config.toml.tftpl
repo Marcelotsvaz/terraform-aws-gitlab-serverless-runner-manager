@@ -12,6 +12,7 @@ check_interval = 1
 	url = "https://gitlab.com/"
 	token = "${runner_authentication_token}"
 	executor = "docker"
+	pre_clone_script = "git config --global http.sslVerify false"	# TODO: Fix SSL.
 	
 	[runners.feature_flags]
 		FF_USE_IMPROVED_URL_MASKING = true
