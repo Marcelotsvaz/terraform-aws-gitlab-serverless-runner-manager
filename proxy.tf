@@ -51,16 +51,16 @@ resource "aws_apigatewayv2_integration" "gitlab" {
 # 
 # Lambda Route.
 #-------------------------------------------------------------------------------
-# resource "aws_apigatewayv2_route" "lambda" {
-# 	api_id = aws_apigatewayv2_api.main.id
-# 	route_key = "POST /api/v4/jobs/request"
-# 	target = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-# }
+resource "aws_apigatewayv2_route" "lambda" {
+	api_id = aws_apigatewayv2_api.main.id
+	route_key = "POST /api/v4/jobs/request"
+	target = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+}
 
 
-# resource "aws_apigatewayv2_integration" "lambda" {
-# 	api_id = aws_apigatewayv2_api.main.id
-# 	integration_type = "AWS_PROXY"
-# 	integration_method = "POST"
-# 	integration_uri = aws_lambda_function.example.invoke_arn
-# }
+resource "aws_apigatewayv2_integration" "lambda" {
+	api_id = aws_apigatewayv2_api.main.id
+	integration_type = "AWS_PROXY"
+	integration_method = "POST"
+	integration_uri = module.job_provider.invoke_arn
+}

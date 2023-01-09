@@ -88,6 +88,7 @@ module "user_data" {
 		runner_name = var.name
 		runner_id = gitlab_runner.main.id
 		runner_authentication_token = gitlab_runner.main.authentication_token
+		proxy_url = aws_apigatewayv2_api.main.api_endpoint
 		cache_bucket_region = aws_s3_bucket.main.region
 		cache_bucket = aws_s3_bucket.main.id
 		cache_prefix = local.bucket_prefix

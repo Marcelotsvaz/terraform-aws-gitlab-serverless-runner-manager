@@ -6,7 +6,12 @@
 
 
 
-# output "content_base64" {
-# 	description = "Input files, archived with tar, compressed with gzip and base64 encoded."
-# 	value = data.external.user_data.result.content_base64
-# }
+output "function_name" {
+	description = "Lambda Function name."
+	value = aws_lambda_function.main.function_name
+}
+
+output "invoke_arn" {
+	description = "Lambda Function invoke ARN."
+	value = aws_lambda_function.main.invoke_arn
+}
