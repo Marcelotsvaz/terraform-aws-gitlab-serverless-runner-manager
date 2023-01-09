@@ -11,6 +11,21 @@ data "gitlab_project" "main" {
 }
 
 
+resource "random_password" "webhook_token" {
+	length = 64
+}
+
+
+resource "gitlab_project_hook" "main" {
+	project = data.gitlab_project.main.id
+	
+	url = aws_lambda_function_url.job_requester.function_url
+	token = random_password.webhook_token.result
+	job_events = true
+	push_events = false
+}
+
+
 resource "gitlab_runner" "main" {
 	registration_token = data.gitlab_project.main.runners_token
 }

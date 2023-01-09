@@ -8,6 +8,7 @@
 
 import logging
 import os
+import json
 import boto3
 import requests
 
@@ -18,9 +19,37 @@ def main( event, context ):
 	
 	
 	# Env vars from Terraform.
+	webhookToken = os.environ['webhookToken']
 	runnerToken = os.environ['runnerToken']
 	gitlabUrl = os.environ['gitlabUrl']
 	jobsTableName = os.environ['jobsTableName']
+	
+	
+	# Validate request.
+	try:
+		if event['headers']['x-gitlab-event'] != 'Job Hook':
+			raise
+		
+		gitlabEventData = json.loads( event['body'] )
+		jobId = gitlabEventData['build_id']
+		jobStatus = gitlabEventData['build_status']
+	except:
+		logging.info( 'Invalid request.' )
+		
+		return { 'statusCode': 400 }
+	
+	
+	# Authorization.
+	if event['headers']['x-gitlab-token'] != webhookToken:
+		logging.info( 'Invalid webhook token.' )
+		
+		return { 'statusCode': 403 }
+	
+	
+	# Check job status.
+	logging.info( f'Job {jobId} status is {jobStatus}.' )
+	if jobStatus != 'pending':
+		return { 'statusCode': 200 }
 	
 	
 	# Get DynamoDB table.
@@ -28,11 +57,13 @@ def main( event, context ):
 	
 	
 	# Get new jobs.
-	while job := requestJob( gitlabUrl, runnerToken ):
+	if job := requestJob( gitlabUrl, runnerToken ):
 		jobId = job['job_info']['id']
-		logging.info( f'Found new job. ID: {jobId}' )
+		logging.info( f'Accepted job {jobId}.' )
 		
 		table.put_item( Item = job )
+	
+	return { 'statusCode': 200 }
 		
 
 

@@ -23,6 +23,7 @@ module "job_requester" {
 	policies = [ data.aws_iam_policy_document.job_requester ]
 	
 	environment = {
+		webhookToken = random_password.webhook_token.result
 		runnerToken = gitlab_runner.main.authentication_token
 		gitlabUrl = "https://gitlab.com"
 		jobsTableName = aws_dynamodb_table.main.name
@@ -39,6 +40,12 @@ data "aws_iam_policy_document" "job_requester" {
 		
 		resources = [ aws_dynamodb_table.main.arn ]
 	}
+}
+
+
+resource "aws_lambda_function_url" "job_requester" {
+	function_name = module.job_requester.function_name
+	authorization_type = "NONE"
 }
 
 
