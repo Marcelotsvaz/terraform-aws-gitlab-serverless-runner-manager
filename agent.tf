@@ -19,15 +19,16 @@ module "job_requester" {
 	source_dir = "${path.module}/files/src"
 	handler = "jobRequester.main"
 	timeout = 10
-	
-	policies = [ data.aws_iam_policy_document.job_requester ]
-	
 	environment = {
 		webhookToken = random_password.webhook_token.result
 		runnerToken = gitlab_runner.main.authentication_token
 		gitlabUrl = "https://gitlab.com"
 		jobsTableName = aws_dynamodb_table.main.name
 	}
+	
+	policies = [ data.aws_iam_policy_document.job_requester ]
+	
+	create_url = true
 }
 
 
@@ -40,12 +41,6 @@ data "aws_iam_policy_document" "job_requester" {
 		
 		resources = [ aws_dynamodb_table.main.arn ]
 	}
-}
-
-
-resource "aws_lambda_function_url" "job_requester" {
-	function_name = module.job_requester.function_name
-	authorization_type = "NONE"
 }
 
 
@@ -80,13 +75,12 @@ module "job_provider" {
 	source_dir = "${path.module}/files/src"
 	handler = "jobProvider.main"
 	timeout = 10
-	
-	policies = [ data.aws_iam_policy_document.job_provider ]
-	
 	environment = {
 		runnerToken = gitlab_runner.main.authentication_token
 		jobsTableName = aws_dynamodb_table.main.name
 	}
+	
+	policies = [ data.aws_iam_policy_document.job_provider ]
 }
 
 

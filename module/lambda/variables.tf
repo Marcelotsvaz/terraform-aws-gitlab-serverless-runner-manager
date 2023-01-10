@@ -48,6 +48,15 @@ variable "environment" {
 }
 
 
+# Lambda.
+#-------------------------------------------------------------------------------
+variable "create_url" {
+	description = "Create Lambda function URL."
+	type = bool
+	default = false
+}
+
+
 # Permissions.
 #-------------------------------------------------------------------------------
 variable "policies" {

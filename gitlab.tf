@@ -19,7 +19,7 @@ resource "random_password" "webhook_token" {
 resource "gitlab_project_hook" "main" {
 	project = data.gitlab_project.main.id
 	
-	url = aws_lambda_function_url.job_requester.function_url
+	url = module.job_requester.function_url
 	token = random_password.webhook_token.result
 	job_events = true
 	push_events = false

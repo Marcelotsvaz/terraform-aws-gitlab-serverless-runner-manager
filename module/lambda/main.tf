@@ -41,6 +41,18 @@ data "archive_file" "lambda_module" {
 }
 
 
+resource "aws_lambda_function_url" "main" {
+	count = var.create_url ? 1 : 0
+	
+	function_name = aws_lambda_function.main.function_name
+	authorization_type = "NONE"
+}
+
+
+
+# 
+# CloudWatch.
+#-------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "main" {
 	name = "/aws/lambda/${local.lambda_function_name}"
 	
