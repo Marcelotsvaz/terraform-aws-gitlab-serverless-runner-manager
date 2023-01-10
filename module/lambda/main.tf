@@ -20,7 +20,9 @@ resource "aws_lambda_function" "main" {
 	timeout = var.timeout
 	
 	environment {
-		variables = var.environment
+		variables = merge( var.environment, {
+			PYTHONPATH = "site-packages"
+		} )
 	}
 	
 	# Make sure the log group is created before the function because we removed the implicit dependency.

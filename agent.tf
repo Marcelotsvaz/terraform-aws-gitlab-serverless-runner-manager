@@ -16,7 +16,7 @@ module "job_requester" {
 	identifier = "jobRequester"
 	prefix = "${var.prefix}-${var.identifier}"
 	
-	source_dir = "${path.module}/files/jobRequester/packages"
+	source_dir = "${path.module}/files/src"
 	handler = "jobRequester.main"
 	timeout = 10
 	
@@ -60,13 +60,9 @@ module "provisioner" {
 	identifier = "provisioner"
 	prefix = "${var.prefix}-${var.identifier}"
 	
-	source_dir = "${path.module}/files/provisioner"
+	source_dir = "${path.module}/files/src"
 	handler = "provisioner.main"
 	timeout = 10
-	
-	environment = {
-		foo = "bar"
-	}
 }
 
 
@@ -81,7 +77,7 @@ module "job_provider" {
 	identifier = "jobProvider"
 	prefix = "${var.prefix}-${var.identifier}"
 	
-	source_dir = "${path.module}/files/jobProvider"
+	source_dir = "${path.module}/files/src"
 	handler = "jobProvider.main"
 	timeout = 10
 	
