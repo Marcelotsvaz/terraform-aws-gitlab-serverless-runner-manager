@@ -39,6 +39,7 @@ variable "handler" {
 variable "timeout" {
 	description = "Lambda function timeout."
 	type = number
+	default = 10
 }
 
 variable "environment" {

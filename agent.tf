@@ -18,7 +18,6 @@ module "job_requester" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "jobRequester.main"
-	timeout = 10
 	environment = {
 		webhookToken = random_password.webhook_token.result
 		runnerToken = gitlab_runner.main.authentication_token
@@ -57,7 +56,6 @@ module "provisioner" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "provisioner.main"
-	timeout = 10
 }
 
 
@@ -74,7 +72,6 @@ module "job_provider" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "jobProvider.main"
-	timeout = 10
 	environment = {
 		runnerToken = gitlab_runner.main.authentication_token
 		jobsTableName = aws_dynamodb_table.main.name
