@@ -7,7 +7,6 @@
 
 
 **/deployment/
-**/.terraform/
 *.tfstate
 *.tfstate.*
 files/src/env/

@@ -37,7 +37,7 @@ resource "aws_lambda_function" "main" {
 data "archive_file" "lambda_module" {
 	type = "zip"
 	source_dir = var.source_dir
-	output_path = "deployment/${var.prefix}/${var.identifier}/module.zip"
+	output_path = "/tmp/terraform/${var.prefix}/${var.identifier}/module.zip"
 	excludes = [ "env/lib64" ]	# lib64 is a symlink which isn't supported by archive_file.
 }
 
