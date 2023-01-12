@@ -22,7 +22,10 @@ module "job_requester" {
 		webhookToken = random_password.webhook_token.result
 		runnerToken = gitlab_runner.main.authentication_token
 		gitlabUrl = "https://gitlab.com"
-		jobsTableName = aws_dynamodb_table.main.name
+		jobsTableName = aws_dynamodb_table.jobs.name
+		# workersTableName = aws_dynamodb_table.workers.name
+		launchTemplateId = aws_launch_template.main.id
+		launchTemplateVersion = aws_launch_template.main.latest_version
 	}
 	
 	policies = [ data.aws_iam_policy_document.job_requester ]
@@ -38,24 +41,30 @@ data "aws_iam_policy_document" "job_requester" {
 		
 		actions = [ "dynamodb:PutItem" ]
 		
-		resources = [ aws_dynamodb_table.main.arn ]
+		resources = [
+			aws_dynamodb_table.jobs.arn,
+			# aws_dynamodb_table.workers.arn,
+		]
 	}
-}
-
-
-
-# 
-# Executor Provisioner.
-#-------------------------------------------------------------------------------
-module "provisioner" {
-	source = "./module/lambda"
 	
-	name = "Provisioner"
-	identifier = "provisioner"
-	prefix = "${var.prefix}-${var.identifier}"
+	statement {
+		sid = "ec2RunInstances"
+		
+		actions = [
+			"ec2:RunInstances",
+			"ec2:CreateTags",
+		]
+		
+		resources = [ "*" ]
+	}
 	
-	source_dir = "${path.module}/files/src"
-	handler = "provisioner.main"
+	statement {
+		sid = "iamPassRole"
+		
+		actions = [ "iam:PassRole" ]
+		
+		resources = [ aws_iam_role.instance.arn ]
+	}
 }
 
 
@@ -74,7 +83,8 @@ module "job_provider" {
 	handler = "jobProvider.main"
 	environment = {
 		runnerToken = gitlab_runner.main.authentication_token
-		jobsTableName = aws_dynamodb_table.main.name
+		jobsTableName = aws_dynamodb_table.jobs.name
+		# workersTableName = aws_dynamodb_table.workers.name
 	}
 	
 	policies = [ data.aws_iam_policy_document.job_provider ]
@@ -91,12 +101,23 @@ data "aws_iam_policy_document" "job_provider" {
 			"dynamodb:DeleteItem",
 		]
 		
-		resources = [ aws_dynamodb_table.main.arn ]
+		resources = [
+			aws_dynamodb_table.jobs.arn,
+			# aws_dynamodb_table.workers.arn,
+		]
+	}
+	
+	statement {
+		sid = "ec2TerminateInstances"
+		
+		actions = [ "ec2:TerminateInstances" ]
+		
+		resources = [ "*" ]
 	}
 }
 
 
-resource "aws_lambda_permission" "autoscaling_lambda_resource_policy" {
+resource "aws_lambda_permission" "job_provider" {
 	function_name = module.job_provider.function_name
 	statement_id = "lambdaInvokeFunction"
 	principal = "apigateway.amazonaws.com"
@@ -110,18 +131,35 @@ resource "aws_lambda_permission" "autoscaling_lambda_resource_policy" {
 # 
 # Job database.
 #-------------------------------------------------------------------------------
-resource "aws_dynamodb_table" "main" {
+resource "aws_dynamodb_table" "jobs" {
 	name = "jobs"
-	hash_key = "id"
+	hash_key = "workerId"
 	
 	billing_mode = "PAY_PER_REQUEST"
 	
 	attribute {
-		name = "id"
-		type = "N"
+		name = "workerId"
+		type = "S"
 	}
 	
 	tags = {
 		Name = "${var.name} Job Database"
 	}
 }
+
+
+# resource "aws_dynamodb_table" "workers" {
+# 	name = "workers"
+# 	hash_key = "id"
+	
+# 	billing_mode = "PAY_PER_REQUEST"
+	
+# 	attribute {
+# 		name = "id"
+# 		type = "N"
+# 	}
+	
+# 	tags = {
+# 		Name = "${var.name} Worker Database"
+# 	}
+# }

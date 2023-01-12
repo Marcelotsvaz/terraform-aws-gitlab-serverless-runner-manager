@@ -35,7 +35,7 @@ resource "aws_apigatewayv2_stage" "main" {
 #-------------------------------------------------------------------------------
 resource "aws_apigatewayv2_route" "gitlab" {
 	api_id = aws_apigatewayv2_api.main.id
-	route_key = "$default"
+	route_key = "ANY /{workerId}/{path+}"
 	target = "integrations/${aws_apigatewayv2_integration.gitlab.id}"
 }
 
@@ -44,7 +44,7 @@ resource "aws_apigatewayv2_integration" "gitlab" {
 	api_id = aws_apigatewayv2_api.main.id
 	integration_type = "HTTP_PROXY"
 	integration_method = "ANY"
-	integration_uri = "https://gitlab.com"
+	integration_uri = "https://gitlab.com/{path}"
 }
 
 
@@ -53,7 +53,7 @@ resource "aws_apigatewayv2_integration" "gitlab" {
 #-------------------------------------------------------------------------------
 resource "aws_apigatewayv2_route" "lambda" {
 	api_id = aws_apigatewayv2_api.main.id
-	route_key = "POST /api/v4/jobs/request"
+	route_key = "POST /{workerId}/api/v4/jobs/request"
 	target = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 

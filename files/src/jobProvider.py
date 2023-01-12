@@ -22,43 +22,40 @@ setattr( TypeDeserializer, '_deserialize_n', lambda _, number: int( number ) )
 def main( event, context ):
 	logging.getLogger().setLevel( logging.INFO )
 	
+	
 	# Env vars from Terraform.
 	runnerToken = os.environ['runnerToken']
 	jobsTableName = os.environ['jobsTableName']
 	
 	
-	# .
-	requestBody = json.loads( event['body'] )
-	
-	
 	# Authorization.
-	if requestBody['token'] != runnerToken:
+	if json.loads( event['body'] )['token'] != runnerToken:
 		logging.info( 'Invalid runner token.' )
 		return { 'statusCode': 400 }
 	
 	
-	# Get DynamoDB table.
-	table = boto3.resource( 'dynamodb' ).Table( jobsTableName )
-	
-	
 	# Get pending job.
-	try:
-		jobId = table.scan( Limit = 1 )['Items'][0]['id']
-		job = table.delete_item( Key = { 'id': jobId }, ReturnValues = 'ALL_OLD' )['Attributes']
-		
-		# Job found.
-		logging.info( f'Sending job {jobId} to runner.' )
+	workerId = event['pathParameters']['workerId']
+	jobs = boto3.resource( 'dynamodb' ).Table( jobsTableName )
+	
+	if job := jobs.delete_item( Key = { 'workerId': workerId }, ReturnValues = 'ALL_OLD' ).get( 'Attributes' ):
+		logging.info( f'Sending job {job["id"]} to worker {workerId}.' )
 		
 		return {
 			"headers": {
 				"Content-Type": "application/json",
 			},
-			"body": json.dumps( job ),
+			"body": json.dumps( job['data'] ),
 			"statusCode": 201,
 		}
-		
-	except IndexError:
-		# No pending jobs.
-		logging.info( 'No pending jobs.' )
+	else:
+		logging.info( f'Terminating worker {workerId}.' )
+		boto3.client( 'ec2' ).terminate_instances( InstanceIds = [ workerId ] )
 		
 		return { "statusCode": 204 }
+	
+	# except IndexError:
+	# 	# No pending jobs.
+	# 	logging.info( 'No pending jobs.' )
+		
+	# 	return { "statusCode": 204 }

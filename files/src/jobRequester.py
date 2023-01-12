@@ -23,6 +23,9 @@ def main( event, context ):
 	runnerToken = os.environ['runnerToken']
 	gitlabUrl = os.environ['gitlabUrl']
 	jobsTableName = os.environ['jobsTableName']
+	# workersTableName = os.environ['workersTableName']
+	launchTemplateId = os.environ['launchTemplateId']
+	launchTemplateVersion = os.environ['launchTemplateVersion']
 	
 	
 	# Validate request.
@@ -52,16 +55,32 @@ def main( event, context ):
 		return { 'statusCode': 200 }
 	
 	
-	# Get DynamoDB table.
-	table = boto3.resource( 'dynamodb' ).Table( jobsTableName )
-	
-	
 	# Get new jobs.
 	if job := requestJob( gitlabUrl, runnerToken ):
 		jobId = job['job_info']['id']
-		logging.info( f'Accepted job {jobId}.' )
 		
-		table.put_item( Item = job )
+		# Create worker.
+		ec2 = boto3.client( 'ec2' )
+		workerId = ec2.run_instances(
+			MinCount = 1,
+			MaxCount = 1,
+			LaunchTemplate = {
+				'LaunchTemplateId': launchTemplateId,
+				'Version': launchTemplateVersion,
+			},
+		)['Instances'][0]['InstanceId']
+		
+		# Register job.
+		jobs = boto3.resource( 'dynamodb' ).Table( jobsTableName )
+		jobs.put_item(
+			Item = {
+				'id': jobId,
+				'workerId': workerId,
+				'data': job,
+			}
+		)
+		
+		logging.info( f'Assigned job {jobId} to worker {workerId}.' )
 	
 	return { 'statusCode': 200 }
 		

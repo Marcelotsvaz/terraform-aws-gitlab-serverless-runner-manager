@@ -9,32 +9,13 @@
 # 
 # Runner instance.
 #-------------------------------------------------------------------------------
-resource "aws_spot_fleet_request" "main" {
-	target_capacity = 1
-	instance_interruption_behaviour = "stop"
-	terminate_instances_on_delete = true
-	# terminate_instances_with_expiration = 
-	iam_fleet_role = "arn:aws:iam::983585628015:role/aws-ec2-spot-fleet-tagging-role"	# TODO
-	
-	launch_template_config {
-		launch_template_specification {
-			id = aws_launch_template.main.id
-			version = aws_launch_template.main.latest_version
-		}
-	}
-	
-	tags = {
-		Name = "${var.name} Spot Fleet Request"
-	}
-}
-
-
 resource "aws_launch_template" "main" {
 	name = "${var.prefix}-${var.identifier}-launchTemplate"
 	update_default_version = true
 	
+	instance_market_options { market_type = "spot" }
 	image_id = data.aws_ami.main.id
-	instance_type = "t3a.medium"
+	instance_type = "t3a.small"
 	iam_instance_profile { arn = aws_iam_instance_profile.main.arn }
 	user_data = module.user_data.content_base64
 	ebs_optimized = true
@@ -158,6 +139,7 @@ data "aws_iam_policy_document" "instance_assume_role" {
 
 
 data "aws_iam_policy_document" "instance_role" {
+	# Used by GitLab Runner.
 	statement {
 		sid = "s3WriteRunnerCache"
 		
