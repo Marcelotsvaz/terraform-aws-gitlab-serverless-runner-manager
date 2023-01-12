@@ -30,9 +30,9 @@ resource "aws_launch_template" "main" {
 	}
 	
 	network_interfaces {
-		subnet_id = var.subnet_id
+		subnet_id = aws_subnet.c.id # var.subnet_id
 		ipv6_address_count = 1
-		security_groups = var.vpc_security_group_ids
+		security_groups = [ aws_default_security_group.main.id ] # var.vpc_security_group_ids
 	}
 	
 	tag_specifications {

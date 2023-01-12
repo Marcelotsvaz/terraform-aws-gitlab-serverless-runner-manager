@@ -26,15 +26,15 @@ variable "prefix" {
 
 # Network.
 #-------------------------------------------------------------------------------
-variable "subnet_id" {
-	description = "VPC subnet ID."
-	type = string
-}
+# variable "subnet_id" {
+# 	description = "VPC subnet ID."
+# 	type = string
+# }
 
-variable "vpc_security_group_ids" {
-	description = "Set of security group IDs"
-	type = set( string )
-}
+# variable "vpc_security_group_ids" {
+# 	description = "Set of security group IDs"
+# 	type = set( string )
+# }
 
 
 # GitLab.
