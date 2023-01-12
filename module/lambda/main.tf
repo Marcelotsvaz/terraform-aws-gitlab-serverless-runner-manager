@@ -21,7 +21,7 @@ resource "aws_lambda_function" "main" {
 	
 	environment {
 		variables = merge( var.environment, {
-			PYTHONPATH = "site-packages"
+			PYTHONPATH = "env/lib/python3.10/site-packages"
 		} )
 	}
 	
@@ -38,6 +38,7 @@ data "archive_file" "lambda_module" {
 	type = "zip"
 	source_dir = var.source_dir
 	output_path = "deployment/${var.prefix}/${var.identifier}/module.zip"
+	excludes = [ "env/lib64" ]	# lib64 is a symlink which isn't supported by archive_file.
 }
 
 
