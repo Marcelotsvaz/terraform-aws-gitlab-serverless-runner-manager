@@ -20,12 +20,12 @@ module "job_requester" {
 	handler = "jobRequester.main"
 	environment = {
 		webhookToken = random_password.webhook_token.result
-		runnerToken = gitlab_runner.main.authentication_token
+		# runnerToken = gitlab_runner.main.authentication_token
 		gitlabUrl = "https://gitlab.com"
 		jobsTableName = aws_dynamodb_table.jobs.name
 		# workersTableName = aws_dynamodb_table.workers.name
-		launchTemplateId = aws_launch_template.main.id
-		launchTemplateVersion = aws_launch_template.main.latest_version
+		# launchTemplateId = aws_launch_template.main.id
+		# launchTemplateVersion = aws_launch_template.main.latest_version
 		subnetIds = join( " ", aws_subnet.main[*].id )
 	}
 	
@@ -84,7 +84,7 @@ module "job_provider" {
 	source_dir = "${path.module}/files/src"
 	handler = "jobProvider.main"
 	environment = {
-		runnerToken = gitlab_runner.main.authentication_token
+		# runnerToken = gitlab_runner.main.authentication_token
 		jobsTableName = aws_dynamodb_table.jobs.name
 		# workersTableName = aws_dynamodb_table.workers.name
 	}

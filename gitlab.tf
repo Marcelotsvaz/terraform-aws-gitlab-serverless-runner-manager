@@ -27,5 +27,15 @@ resource "gitlab_project_hook" "main" {
 
 
 resource "gitlab_runner" "main" {
+	for_each = local.runner_config_map
+	
 	registration_token = data.gitlab_project.main.runners_token
+	
+	access_level = each.value.access_level
+	description = each.value.description
+	locked = each.value.locked
+	maximum_timeout = each.value.maximum_timeout
+	paused = each.value.paused
+	run_untagged = each.value.run_untagged
+	tag_list = each.value.tag_list
 }

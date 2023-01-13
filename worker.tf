@@ -10,22 +10,24 @@
 # Worker instance.
 #-------------------------------------------------------------------------------
 resource "aws_launch_template" "main" {
-	name = "${var.prefix}-${var.identifier}-launchTemplate"
+	for_each = local.runner_config_map
+	
+	name = "${var.prefix}-${var.identifier}-launchTemplate-${each.key}"
 	update_default_version = true
 	
 	image_id = data.aws_ami.main.id
 	vpc_security_group_ids = [ aws_default_security_group.main.id ]
 	iam_instance_profile { arn = aws_iam_instance_profile.main.arn }
-	user_data = module.user_data.content_base64
+	user_data = module.user_data[each.key].content_base64
 	ebs_optimized = true
 	
 	instance_requirements {
 		vcpu_count {
-			min = 2
+			min = each.value.min_vcpu
 			max = 8
 		}
 		memory_mib {
-			min = 4096
+			min = each.value.min_memory_mib
 			max = 16384
 		}
 		instance_generations = [ "current" ]
@@ -71,15 +73,17 @@ module "user_data" {
 	source = "gitlab.com/marcelotsvaz/user-data/external"
 	version = "~> 1.0"
 	
+	for_each = local.runner_config_map
+	
 	input_dir = "${path.module}/files"
 	
 	files = [ "perInstance.sh" ]
 	templates = [ "config.toml.tftpl" ]
 	
 	context = {
-		runner_name = var.name
-		runner_id = gitlab_runner.main.id
-		runner_authentication_token = gitlab_runner.main.authentication_token
+		runner_name = each.value.name
+		runner_id = gitlab_runner.main[each.key].id
+		runner_authentication_token = gitlab_runner.main[each.key].authentication_token
 		proxy_url = aws_apigatewayv2_api.main.api_endpoint
 		cache_bucket_region = aws_s3_bucket.main.region
 		cache_bucket = aws_s3_bucket.main.id

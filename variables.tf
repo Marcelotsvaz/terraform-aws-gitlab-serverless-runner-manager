@@ -6,6 +6,7 @@
 
 
 
+# 
 # Name.
 #-------------------------------------------------------------------------------
 variable "name" {
@@ -24,6 +25,7 @@ variable "prefix" {
 }
 
 
+# 
 # Network.
 #-------------------------------------------------------------------------------
 # variable "subnet_id" {
@@ -37,6 +39,7 @@ variable "prefix" {
 # }
 
 
+# 
 # GitLab.
 #-------------------------------------------------------------------------------
 variable "project_id" {
@@ -45,6 +48,30 @@ variable "project_id" {
 }
 
 
+# 
+# Name.
+#-------------------------------------------------------------------------------
+variable "runner_config" {
+	description = ""
+	type = list( object( {
+		# Registration.
+		access_level = optional( string, "ref_protected" )
+		description = optional( string, "RunnerDesc" )
+		locked = optional( bool, false )
+		maximum_timeout = optional( number, 3600 )
+		paused = optional( bool, false )
+		run_untagged = optional( bool, true )
+		tag_list = optional( set( string ), [] )
+		
+		# Worker.
+		name = optional( string, "RunnerName" )
+		min_vcpu = number
+		min_memory_mib = number
+	} ) )
+}
+
+
+# 
 # Tags.
 #-------------------------------------------------------------------------------
 variable "default_tags" {
@@ -55,8 +82,10 @@ variable "default_tags" {
 
 
 
+# 
 # Locals.
 #-------------------------------------------------------------------------------
 locals {
 	bucket_prefix = "gitlabRunnerCache"
+	runner_config_map = { for index, config in var.runner_config : index => config }
 }
