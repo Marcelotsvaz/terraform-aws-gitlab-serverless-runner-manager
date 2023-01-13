@@ -26,6 +26,7 @@ def main( event, context ):
 	# workersTableName = os.environ['workersTableName']
 	launchTemplateId = os.environ['launchTemplateId']
 	launchTemplateVersion = os.environ['launchTemplateVersion']
+	subnetIds = os.environ['subnetIds'].split()
 	
 	
 	# Validate request.
@@ -39,28 +40,26 @@ def main( event, context ):
 	except:
 		logging.info( 'Invalid request.' )
 		
-		return { 'statusCode': 400 }
+		return { 'statusCode': 400 }	# Bad request.
 	
 	
 	# Authorization.
 	if event['headers']['x-gitlab-token'] != webhookToken:
 		logging.info( 'Invalid webhook token.' )
 		
-		return { 'statusCode': 403 }
+		return { 'statusCode': 403 }	# Forbidden.
 	
 	
 	# Check job status.
 	logging.info( f'Job {jobId} status is {jobStatus}.' )
 	if jobStatus != 'pending':
-		return { 'statusCode': 200 }
+		return { 'statusCode': 200 }	# Ok.
 	
 	
 	# Get new jobs.
 	if job := requestJob( gitlabUrl, runnerToken ):
-		jobId = job['job_info']['id']
-		
 		# Create worker.
-		workerId = boto3.client( 'ec2' ).create_fleet(
+		fleetRequest = boto3.client( 'ec2' ).create_fleet(
 			Type = 'instant',
 			TargetCapacitySpecification = {
 				'DefaultTargetCapacityType': 'spot',
@@ -72,11 +71,23 @@ def main( event, context ):
 						'LaunchTemplateId': launchTemplateId,
 						'Version': launchTemplateVersion,
 					},
+					'Overrides': [ { 'SubnetId': subnetId } for subnetId in subnetIds ],
 				},
 			],
-		)['Instances'][0]['InstanceIds'][0]
+		)
+		
+		for error in fleetRequest['Errors']:
+			logging.warning( error )
+		
+		if len( fleetRequest['Instances'] ) == 0:
+			logging.error( 'Couldn\'t create worker.' )
+			return { 'statusCode': 500 }	# Internal server error.
+		
 		
 		# Register job.
+		jobId = job['job_info']['id']
+		workerId = fleetRequest['Instances'][0]['InstanceIds'][0]
+		workerType = fleetRequest['Instances'][0]['InstanceType']
 		jobs = boto3.resource( 'dynamodb' ).Table( jobsTableName )
 		jobs.put_item(
 			Item = {
@@ -86,9 +97,9 @@ def main( event, context ):
 			}
 		)
 		
-		logging.info( f'Assigned job {jobId} to worker {workerId}.' )
+		logging.info( f'Assigned job {jobId} to worker {workerId} ({workerType}).' )
 	
-	return { 'statusCode': 200 }
+	return { 'statusCode': 201 }	# Created.
 		
 
 

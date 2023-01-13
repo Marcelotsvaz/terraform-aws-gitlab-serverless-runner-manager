@@ -6,6 +6,9 @@
 
 
 
+# 
+# VPC.
+#-------------------------------------------------------------------------------
 resource "aws_vpc" "main" {
 	cidr_block = "10.0.0.0/16"
 	assign_generated_ipv6_cidr_block = true
@@ -60,25 +63,45 @@ resource "aws_default_route_table" "main" {
 }
 
 
-resource "aws_subnet" "c" {
+
+# 
+# Subnets.
+#-------------------------------------------------------------------------------
+data "aws_availability_zones" "main" {
+	
+}
+
+
+locals {
+	availability_zone_letters = [ for zone in data.aws_availability_zones.main.names : upper( trimprefix( zone, data.aws_availability_zones.main.id ) ) ]
+}
+
+
+resource "aws_subnet" "main" {
+	count = length( data.aws_availability_zones.main.names )
+	
 	vpc_id = aws_vpc.main.id
-	availability_zone = "sa-east-1c"
-	cidr_block = cidrsubnet( aws_vpc.main.cidr_block, 8, 3 )
-	ipv6_cidr_block = cidrsubnet( aws_vpc.main.ipv6_cidr_block, 8, 3 )
+	availability_zone = data.aws_availability_zones.main.names[count.index]
+	cidr_block = cidrsubnet( aws_vpc.main.cidr_block, 8, count.index )
+	ipv6_cidr_block = cidrsubnet( aws_vpc.main.ipv6_cidr_block, 8, count.index )
 	map_public_ip_on_launch = true
 	assign_ipv6_address_on_creation = true
 	
 	depends_on = [ aws_vpc_dhcp_options_association.main ]	# Block instance creation before DHCP options is ready.
 	
 	tags = {
-		Name: "${var.name} Subnet C"
+		Name: "${var.name} Subnet ${local.availability_zone_letters[count.index]}"
 	}
 }
 
 
-resource "aws_default_network_acl" "acl" {
+
+# 
+# Security.
+#-------------------------------------------------------------------------------
+resource "aws_default_network_acl" "main" {
 	default_network_acl_id = aws_vpc.main.default_network_acl_id
-	subnet_ids = [ aws_subnet.c.id ]
+	subnet_ids = aws_subnet.main[*].id
 	
 	ingress {
 		rule_no = 100

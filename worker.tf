@@ -14,6 +14,7 @@ resource "aws_launch_template" "main" {
 	update_default_version = true
 	
 	image_id = data.aws_ami.main.id
+	vpc_security_group_ids = [ aws_default_security_group.main.id ]
 	iam_instance_profile { arn = aws_iam_instance_profile.main.arn }
 	user_data = module.user_data.content_base64
 	ebs_optimized = true
@@ -43,12 +44,6 @@ resource "aws_launch_template" "main" {
 			volume_size = 10
 			encrypted = true
 		}
-	}
-	
-	network_interfaces {
-		subnet_id = aws_subnet.c.id # var.subnet_id
-		ipv6_address_count = 1
-		security_groups = [ aws_default_security_group.main.id ] # var.vpc_security_group_ids
 	}
 	
 	tag_specifications {

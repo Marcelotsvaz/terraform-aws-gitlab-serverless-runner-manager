@@ -26,6 +26,7 @@ module "job_requester" {
 		# workersTableName = aws_dynamodb_table.workers.name
 		launchTemplateId = aws_launch_template.main.id
 		launchTemplateVersion = aws_launch_template.main.latest_version
+		subnetIds = join( " ", aws_subnet.main[*].id )
 	}
 	
 	policies = [ data.aws_iam_policy_document.job_requester ]
