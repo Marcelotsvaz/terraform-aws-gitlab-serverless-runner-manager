@@ -48,9 +48,10 @@ data "aws_iam_policy_document" "job_requester" {
 	}
 	
 	statement {
-		sid = "ec2RunInstances"
+		sid = "ec2CreateWorker"
 		
 		actions = [
+			"ec2:CreateFleet",
 			"ec2:RunInstances",
 			"ec2:CreateTags",
 		]

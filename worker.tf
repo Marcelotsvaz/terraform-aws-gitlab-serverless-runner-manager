@@ -13,12 +13,28 @@ resource "aws_launch_template" "main" {
 	name = "${var.prefix}-${var.identifier}-launchTemplate"
 	update_default_version = true
 	
-	instance_market_options { market_type = "spot" }
 	image_id = data.aws_ami.main.id
-	instance_type = "t3a.small"
 	iam_instance_profile { arn = aws_iam_instance_profile.main.arn }
 	user_data = module.user_data.content_base64
 	ebs_optimized = true
+	
+	instance_requirements {
+		vcpu_count {
+			min = 2
+			max = 8
+		}
+		memory_mib {
+			min = 4096
+			max = 16384
+		}
+		instance_generations = [ "current" ]
+		excluded_instance_types = [
+			"i3.*",
+			"m4.*",
+			"c4.*",
+			"r4.*",
+		]
+	}
 	
 	block_device_mappings {
 		device_name = "/dev/xvda"

@@ -60,15 +60,21 @@ def main( event, context ):
 		jobId = job['job_info']['id']
 		
 		# Create worker.
-		ec2 = boto3.client( 'ec2' )
-		workerId = ec2.run_instances(
-			MinCount = 1,
-			MaxCount = 1,
-			LaunchTemplate = {
-				'LaunchTemplateId': launchTemplateId,
-				'Version': launchTemplateVersion,
+		workerId = boto3.client( 'ec2' ).create_fleet(
+			Type = 'instant',
+			TargetCapacitySpecification = {
+				'DefaultTargetCapacityType': 'spot',
+				'TotalTargetCapacity': 1,
 			},
-		)['Instances'][0]['InstanceId']
+			LaunchTemplateConfigs = [
+				{
+					'LaunchTemplateSpecification': {
+						'LaunchTemplateId': launchTemplateId,
+						'Version': launchTemplateVersion,
+					},
+				},
+			],
+		)['Instances'][0]['InstanceIds'][0]
 		
 		# Register job.
 		jobs = boto3.resource( 'dynamodb' ).Table( jobsTableName )
