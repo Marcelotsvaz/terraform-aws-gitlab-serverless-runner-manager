@@ -124,9 +124,36 @@ resource "aws_lambda_permission" "job_provider" {
 	statement_id = "lambdaInvokeFunction"
 	principal = "apigateway.amazonaws.com"
 	action = "lambda:InvokeFunction"
-	source_arn = "${aws_apigatewayv2_stage.main.execution_arn}/${replace( aws_apigatewayv2_route.lambda.route_key, " ", "")}"
+	source_arn = "${aws_apigatewayv2_stage.main.execution_arn}/${replace( aws_apigatewayv2_route.job_provider.route_key, " ", "")}"
 }
 
+
+
+# 
+# Authorizer.
+#-------------------------------------------------------------------------------
+module "authorizer" {
+	source = "./module/lambda"
+	
+	name = "Authorizer"
+	identifier = "authorizer"
+	prefix = "${var.prefix}-${var.identifier}"
+	
+	source_dir = "${path.module}/files/src"
+	handler = "authorizer.main"
+	environment = {
+		token = random_password.webhook_token.result
+	}
+}
+
+
+resource "aws_lambda_permission" "authorizer" {
+	function_name = module.authorizer.function_name
+	statement_id = "lambdaInvokeFunction"
+	principal = "apigateway.amazonaws.com"
+	action = "lambda:InvokeFunction"
+	source_arn = "${aws_apigatewayv2_api.main.execution_arn}/authorizers/${aws_apigatewayv2_authorizer.main.id}"
+}
 
 
 
