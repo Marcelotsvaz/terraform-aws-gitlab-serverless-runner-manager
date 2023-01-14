@@ -19,7 +19,7 @@ resource "random_password" "webhook_token" {
 resource "gitlab_project_hook" "main" {
 	project = data.gitlab_project.main.id
 	
-	url = module.job_requester.function_url
+	url = "${aws_apigatewayv2_api.main.api_endpoint}${split( " ", aws_apigatewayv2_route.manager.route_key )[1]}"
 	token = random_password.webhook_token.result
 	job_events = true
 	push_events = false

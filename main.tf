@@ -30,8 +30,6 @@ module "job_requester" {
 	}
 	
 	policies = [ data.aws_iam_policy_document.job_requester ]
-	
-	create_url = true
 }
 
 
