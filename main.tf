@@ -58,6 +58,7 @@ module "job_matcher" {
 	source_dir = "${path.module}/files/src"
 	handler = "jobMatcher.main"
 	environment = {
+		gitlabUrl = var.gitlab_url
 		projectToken = gitlab_project_access_token.main.token
 		runners = jsonencode( local.runner_config_output )
 		jobRequesterFunctionArn = module.job_requester.arn
@@ -91,7 +92,11 @@ module "job_requester" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "jobRequester.main"
-	environment = { jobsTableName = aws_dynamodb_table.jobs.name }
+	environment = {
+		gitlabUrl = var.gitlab_url
+		subnetIds = jsonencode( aws_subnet.main[*].id )
+		jobsTableName = aws_dynamodb_table.jobs.name
+	}
 	
 	policies = [ data.aws_iam_policy_document.job_requester ]
 }
@@ -99,18 +104,15 @@ module "job_requester" {
 
 data "aws_iam_policy_document" "job_requester" {
 	statement {
-		sid = "dynamodbPutItem"
+		sid = "putJob"
 		
 		actions = [ "dynamodb:PutItem" ]
 		
-		resources = [
-			aws_dynamodb_table.jobs.arn,
-			# aws_dynamodb_table.workers.arn,
-		]
+		resources = [ aws_dynamodb_table.jobs.arn ]
 	}
 	
 	statement {
-		sid = "ec2CreateWorker"
+		sid = "createWorker"
 		
 		actions = [
 			"ec2:CreateFleet",
@@ -122,7 +124,7 @@ data "aws_iam_policy_document" "job_requester" {
 	}
 	
 	statement {
-		sid = "iamPassRole"
+		sid = "passWorkerRole"
 		
 		actions = [ "iam:PassRole" ]
 		

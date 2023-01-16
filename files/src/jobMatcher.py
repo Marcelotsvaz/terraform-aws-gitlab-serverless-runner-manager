@@ -19,9 +19,9 @@ def main( event, context ):
 	
 	
 	# Get job tags.
+	url = os.environ['gitlabUrl']
 	projectId = event['projectId']
 	jobId = event['jobId']
-	url = 'https://gitlab.com'
 	response = requests.get(
 		f'{url}/api/v4/projects/{projectId}/jobs/{jobId}',
 		headers = {
@@ -53,5 +53,5 @@ def main( event, context ):
 	boto3.client( 'lambda' ).invoke(
 		FunctionName = os.environ['jobRequesterFunctionArn'],
 		InvocationType = 'Event',
-		Payload = json.dumps( { 'runnerAuthenticationToken': matchingRunners.popitem()[1]['authentication_token']} ),
+		Payload = json.dumps( { 'runner': matchingRunners.popitem()[1] } ),
 	)

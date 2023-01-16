@@ -7,7 +7,7 @@
 
 
 # 
-# Name.
+# Name
 #-------------------------------------------------------------------------------
 variable "name" {
 	description = "Name of the instance."
@@ -26,7 +26,7 @@ variable "prefix" {
 
 
 # 
-# Network.
+# Network
 #-------------------------------------------------------------------------------
 # variable "subnet_id" {
 # 	description = "VPC subnet ID."
@@ -40,16 +40,22 @@ variable "prefix" {
 
 
 # 
-# GitLab.
+# GitLab
 #-------------------------------------------------------------------------------
+variable "gitlab_url" {
+	description = "URL of the GitLab instance."
+	type = string
+	default = "https://gitlab.com"
+}
+
 variable "project_id" {
-	description = ""
+	description = "GitLab project ID."
 	type = string
 }
 
 
 # 
-# Name.
+# Runners
 #-------------------------------------------------------------------------------
 variable "runners" {
 	description = ""
@@ -71,7 +77,7 @@ variable "runners" {
 
 
 # 
-# Tags.
+# Tags
 #-------------------------------------------------------------------------------
 variable "default_tags" {
 	description = "Tags to be applied to all resources."
@@ -82,11 +88,13 @@ variable "default_tags" {
 
 
 # 
-# Locals.
+# Locals
 #-------------------------------------------------------------------------------
 locals {
 	bucket_prefix = "gitlabRunnerCache"
 	runner_config_output = { for id, runner in var.runners : id => merge( runner, {
+		id = id
 		authentication_token = gitlab_runner.main[id].authentication_token
+		launch_template_id = aws_launch_template.main[id].id
 	} ) }
 }

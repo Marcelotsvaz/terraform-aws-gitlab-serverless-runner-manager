@@ -101,5 +101,5 @@ resource "aws_apigatewayv2_integration" "gitlab" {
 	api_id = aws_apigatewayv2_api.main.id
 	integration_type = "HTTP_PROXY"
 	integration_method = "ANY"
-	integration_uri = "https://gitlab.com/{path}"
+	integration_uri = "${var.gitlab_url}/{path}"
 }
