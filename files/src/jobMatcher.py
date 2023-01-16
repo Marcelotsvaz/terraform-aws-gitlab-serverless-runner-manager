@@ -49,6 +49,7 @@ def main( event, context ):
 	
 	logging.info( f'Job {jobId} matched runners with ID: {", ".join( matchingRunners )}' )
 	
+	
 	# Trigger jobRequester function with selected runner.
 	boto3.client( 'lambda' ).invoke(
 		FunctionName = os.environ['jobRequesterFunctionArn'],

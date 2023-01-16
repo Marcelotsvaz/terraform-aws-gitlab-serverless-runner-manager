@@ -147,9 +147,8 @@ module "job_provider" {
 	source_dir = "${path.module}/files/src"
 	handler = "jobProvider.main"
 	environment = {
-		# runnerToken = gitlab_runner.main.authentication_token
+		runners = jsonencode( local.runner_config_output )
 		jobsTableName = aws_dynamodb_table.jobs.name
-		# workersTableName = aws_dynamodb_table.workers.name
 	}
 	
 	policies = [ data.aws_iam_policy_document.job_provider ]
@@ -158,21 +157,18 @@ module "job_provider" {
 
 data "aws_iam_policy_document" "job_provider" {
 	statement {
-		sid = "dynamodbGetItem"
+		sid = "getJob"
 		
 		actions = [
 			"dynamodb:Scan",
 			"dynamodb:DeleteItem",
 		]
 		
-		resources = [
-			aws_dynamodb_table.jobs.arn,
-			# aws_dynamodb_table.workers.arn,
-		]
+		resources = [ aws_dynamodb_table.jobs.arn ]
 	}
 	
 	statement {
-		sid = "ec2TerminateInstances"
+		sid = "terminateWorker"
 		
 		actions = [ "ec2:TerminateInstances" ]
 		

@@ -7,8 +7,8 @@
 
 
 import logging
-import os
 import json
+import os
 import boto3
 
 
@@ -23,21 +23,17 @@ def main( event, context ):
 	logging.getLogger().setLevel( logging.INFO )
 	
 	
-	# Env vars from Terraform.
-	runnerToken = os.environ['runnerToken']
-	jobsTableName = os.environ['jobsTableName']
-	
-	
 	# Authorization.
-	if json.loads( event['body'] )['token'] != runnerToken:
-		logging.info( 'Invalid runner token.' )
-		return { 'statusCode': 400 }
+	requestToken = json.loads( event['body'] )['token']
+	runnerTokens = [ runner['authentication_token'] for runner in json.loads( os.environ['runners'] ).values() ]
+	if requestToken not in runnerTokens:
+		logging.error( 'Invalid runner authentication token.' )
+		return { 'statusCode': 403 }	# Forbidden.
 	
 	
-	# Get pending job.
+	# Return pending job.
 	workerId = event['pathParameters']['workerId']
-	jobs = boto3.resource( 'dynamodb' ).Table( jobsTableName )
-	
+	jobs = boto3.resource( 'dynamodb' ).Table( os.environ['jobsTableName'] )
 	if job := jobs.delete_item( Key = { 'workerId': workerId }, ReturnValues = 'ALL_OLD' ).get( 'Attributes' ):
 		logging.info( f'Sending job {job["id"]} to worker {workerId}.' )
 		
@@ -46,16 +42,10 @@ def main( event, context ):
 				"Content-Type": "application/json",
 			},
 			"body": json.dumps( job['data'] ),
-			"statusCode": 201,
+			"statusCode": 201,	# Created.
 		}
 	else:
 		logging.info( f'Terminating worker {workerId}.' )
 		boto3.client( 'ec2' ).terminate_instances( InstanceIds = [ workerId ] )
 		
-		return { "statusCode": 204 }
-	
-	# except IndexError:
-	# 	# No pending jobs.
-	# 	logging.info( 'No pending jobs.' )
-		
-	# 	return { "statusCode": 204 }
+		return { "statusCode": 204 } # No content.
