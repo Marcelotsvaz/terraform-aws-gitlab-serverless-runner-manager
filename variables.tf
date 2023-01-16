@@ -51,9 +51,9 @@ variable "project_id" {
 # 
 # Name.
 #-------------------------------------------------------------------------------
-variable "runner_config" {
+variable "runners" {
 	description = ""
-	type = list( object( {
+	type = map( object( {
 		# Registration.
 		access_level = optional( string, "ref_protected" )
 		description = optional( string, "RunnerDesc" )
@@ -64,7 +64,6 @@ variable "runner_config" {
 		tag_list = optional( set( string ), [] )
 		
 		# Worker.
-		name = optional( string, "RunnerName" )
 		min_vcpu = number
 		min_memory_mib = number
 	} ) )
@@ -87,5 +86,7 @@ variable "default_tags" {
 #-------------------------------------------------------------------------------
 locals {
 	bucket_prefix = "gitlabRunnerCache"
-	runner_config_map = { for index, config in var.runner_config : index => config }
+	runner_config_output = { for id, runner in var.runners : id => merge( runner, {
+		authentication_token = gitlab_runner.main[id].authentication_token
+	} ) }
 }

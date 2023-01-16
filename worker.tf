@@ -10,7 +10,7 @@
 # Worker instance.
 #-------------------------------------------------------------------------------
 resource "aws_launch_template" "main" {
-	for_each = local.runner_config_map
+	for_each = var.runners
 	
 	name = "${var.prefix}-${var.identifier}-launchTemplate-${each.key}"
 	update_default_version = true
@@ -73,7 +73,7 @@ module "user_data" {
 	source = "gitlab.com/marcelotsvaz/user-data/external"
 	version = "~> 1.0"
 	
-	for_each = local.runner_config_map
+	for_each = var.runners
 	
 	input_dir = "${path.module}/files"
 	
@@ -81,7 +81,7 @@ module "user_data" {
 	templates = [ "config.toml.tftpl" ]
 	
 	context = {
-		runner_name = each.value.name
+		runner_name = each.key
 		runner_id = gitlab_runner.main[each.key].id
 		runner_authentication_token = gitlab_runner.main[each.key].authentication_token
 		proxy_url = aws_apigatewayv2_api.main.api_endpoint

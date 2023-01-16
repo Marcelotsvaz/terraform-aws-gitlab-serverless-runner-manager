@@ -53,5 +53,5 @@ def main( event, context ):
 	boto3.client( 'lambda' ).invoke(
 		FunctionName = os.environ['jobRequesterFunctionArn'],
 		InvocationType = 'Event',
-		Payload = json.dumps( { 'runnerToken': matchingRunners.popitem()[1]['runnerToken']} ),
+		Payload = json.dumps( { 'runnerAuthenticationToken': matchingRunners.popitem()[1]['authentication_token']} ),
 	)

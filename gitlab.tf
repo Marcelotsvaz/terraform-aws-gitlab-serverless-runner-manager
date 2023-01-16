@@ -27,7 +27,7 @@ resource "gitlab_project_hook" "main" {
 
 
 resource "gitlab_runner" "main" {
-	for_each = local.runner_config_map
+	for_each = var.runners
 	
 	registration_token = data.gitlab_project.main.runners_token
 	

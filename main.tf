@@ -59,7 +59,7 @@ module "job_matcher" {
 	handler = "jobMatcher.main"
 	environment = {
 		projectToken = gitlab_project_access_token.main.token
-		runners = jsonencode( local.runner_config_map )
+		runners = jsonencode( local.runner_config_output )
 		jobRequesterFunctionArn = module.job_requester.arn
 	}
 	
@@ -91,11 +91,7 @@ module "job_requester" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "jobRequester.main"
-	environment = {
-		projectToken = gitlab_project_access_token.main.token
-		runners = jsonencode( local.runner_config_map )
-		jobsTableName = aws_dynamodb_table.jobs.name
-	}
+	environment = { jobsTableName = aws_dynamodb_table.jobs.name }
 	
 	policies = [ data.aws_iam_policy_document.job_requester ]
 }
