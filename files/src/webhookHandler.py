@@ -40,7 +40,7 @@ def main( event, context ):
 	
 	# Pass pending job to jobRequester lambda.
 	boto3.client( 'lambda' ).invoke(
-		FunctionName = os.environ['jobRequesterFunctionArn'],
+		FunctionName = os.environ['jobMatchersFunctionArn'],
 		InvocationType = 'Event',
 		Payload = json.dumps( {
 			'jobId': jobId,

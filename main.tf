@@ -7,7 +7,7 @@
 
 
 # 
-# Webhook Handler.
+# Webhook Handler
 #-------------------------------------------------------------------------------
 module "webhook_handler" {
 	source = "./module/lambda"
@@ -18,7 +18,7 @@ module "webhook_handler" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "webhookHandler.main"
-	environment = { jobRequesterFunctionArn = module.job_requester.arn }
+	environment = { jobMatchersFunctionArn = module.job_matcher.arn }
 	
 	policies = [ data.aws_iam_policy_document.webhook_handler ]
 }
@@ -26,11 +26,11 @@ module "webhook_handler" {
 
 data "aws_iam_policy_document" "webhook_handler" {
 	statement {
-		sid = "lambdaInvokeFunction"
+		sid = "invokeJobMatcherFunction"
 		
 		actions = [ "lambda:InvokeFunction" ]
 		
-		resources = [ module.job_requester.arn ]
+		resources = [ module.job_matcher.arn ]
 	}
 }
 
@@ -46,7 +46,41 @@ resource "aws_lambda_permission" "webhook_handler" {
 
 
 # 
-# Job requester.
+# Job Matcher
+#-------------------------------------------------------------------------------
+module "job_matcher" {
+	source = "./module/lambda"
+	
+	name = "Job Matcher"
+	identifier = "jobMatcher"
+	prefix = "${var.prefix}-${var.identifier}"
+	
+	source_dir = "${path.module}/files/src"
+	handler = "jobMatcher.main"
+	environment = {
+		projectToken = gitlab_project_access_token.main.token
+		runners = jsonencode( local.runner_config_map )
+		jobRequesterFunctionArn = module.job_requester.arn
+	}
+	
+	policies = [ data.aws_iam_policy_document.job_matcher ]
+}
+
+
+data "aws_iam_policy_document" "job_matcher" {
+	statement {
+		sid = "invokeJobRequesterFunction"
+		
+		actions = [ "lambda:InvokeFunction" ]
+		
+		resources = [ module.job_requester.arn ]
+	}
+}
+
+
+
+# 
+# Job Requester
 #-------------------------------------------------------------------------------
 module "job_requester" {
 	source = "./module/lambda"
@@ -103,7 +137,7 @@ data "aws_iam_policy_document" "job_requester" {
 
 
 # 
-# Job provider.
+# Job Provider
 #-------------------------------------------------------------------------------
 module "job_provider" {
 	source = "./module/lambda"
@@ -160,7 +194,7 @@ resource "aws_lambda_permission" "job_provider" {
 
 
 # 
-# Authorizer.
+# Authorizer
 #-------------------------------------------------------------------------------
 module "authorizer" {
 	source = "./module/lambda"
@@ -186,7 +220,7 @@ resource "aws_lambda_permission" "authorizer" {
 
 
 # 
-# Job database.
+# Jobs Database
 #-------------------------------------------------------------------------------
 resource "aws_dynamodb_table" "jobs" {
 	name = "jobs"
@@ -203,20 +237,3 @@ resource "aws_dynamodb_table" "jobs" {
 		Name = "${var.name} Job Database"
 	}
 }
-
-
-# resource "aws_dynamodb_table" "workers" {
-# 	name = "workers"
-# 	hash_key = "id"
-	
-# 	billing_mode = "PAY_PER_REQUEST"
-	
-# 	attribute {
-# 		name = "id"
-# 		type = "N"
-# 	}
-	
-# 	tags = {
-# 		Name = "${var.name} Worker Database"
-# 	}
-# }
