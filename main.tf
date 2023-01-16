@@ -7,6 +7,45 @@
 
 
 # 
+# Webhook Handler.
+#-------------------------------------------------------------------------------
+module "webhook_handler" {
+	source = "./module/lambda"
+	
+	name = "Webhook Handler"
+	identifier = "webhookHandler"
+	prefix = "${var.prefix}-${var.identifier}"
+	
+	source_dir = "${path.module}/files/src"
+	handler = "webhookHandler.main"
+	environment = { jobRequesterFunctionArn = module.job_requester.arn }
+	
+	policies = [ data.aws_iam_policy_document.webhook_handler ]
+}
+
+
+data "aws_iam_policy_document" "webhook_handler" {
+	statement {
+		sid = "lambdaInvokeFunction"
+		
+		actions = [ "lambda:InvokeFunction" ]
+		
+		resources = [ module.job_requester.arn ]
+	}
+}
+
+
+resource "aws_lambda_permission" "webhook_handler" {
+	function_name = module.webhook_handler.function_name
+	statement_id = "lambdaInvokeFunction"
+	principal = "apigateway.amazonaws.com"
+	action = "lambda:InvokeFunction"
+	source_arn = "${aws_apigatewayv2_stage.main.execution_arn}/${replace( aws_apigatewayv2_route.webhook_handler.route_key, " ", "")}"
+}
+
+
+
+# 
 # Job requester.
 #-------------------------------------------------------------------------------
 module "job_requester" {
@@ -19,14 +58,9 @@ module "job_requester" {
 	source_dir = "${path.module}/files/src"
 	handler = "jobRequester.main"
 	environment = {
-		webhookToken = random_password.webhook_token.result
-		# runnerToken = gitlab_runner.main.authentication_token
-		gitlabUrl = "https://gitlab.com"
+		projectToken = gitlab_project_access_token.main.token
+		runners = jsonencode( local.runner_config_map )
 		jobsTableName = aws_dynamodb_table.jobs.name
-		# workersTableName = aws_dynamodb_table.workers.name
-		# launchTemplateId = aws_launch_template.main.id
-		# launchTemplateVersion = aws_launch_template.main.latest_version
-		subnetIds = join( " ", aws_subnet.main[*].id )
 	}
 	
 	policies = [ data.aws_iam_policy_document.job_requester ]
@@ -34,7 +68,6 @@ module "job_requester" {
 
 
 data "aws_iam_policy_document" "job_requester" {
-	# Used in jobRequester.py.
 	statement {
 		sid = "dynamodbPutItem"
 		
@@ -92,7 +125,6 @@ module "job_provider" {
 
 
 data "aws_iam_policy_document" "job_provider" {
-	# Used in jobProvider.py.
 	statement {
 		sid = "dynamodbGetItem"
 		
@@ -139,9 +171,7 @@ module "authorizer" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "authorizer.main"
-	environment = {
-		token = random_password.webhook_token.result
-	}
+	environment = { token = random_password.webhook_token.result }
 }
 
 

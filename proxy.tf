@@ -44,22 +44,22 @@ resource "aws_apigatewayv2_authorizer" "main" {
 
 
 # 
-# Manager Route.
+# Webhook Handler Route.
 #-------------------------------------------------------------------------------
-resource "aws_apigatewayv2_route" "manager" {
+resource "aws_apigatewayv2_route" "webhook_handler" {
 	api_id = aws_apigatewayv2_api.main.id
 	route_key = "POST /manager"
 	authorization_type = "CUSTOM"
 	authorizer_id = aws_apigatewayv2_authorizer.main.id
-	target = "integrations/${aws_apigatewayv2_integration.manager.id}"
+	target = "integrations/${aws_apigatewayv2_integration.webhook_handler.id}"
 }
 
 
-resource "aws_apigatewayv2_integration" "manager" {
+resource "aws_apigatewayv2_integration" "webhook_handler" {
 	api_id = aws_apigatewayv2_api.main.id
 	integration_type = "AWS_PROXY"
 	integration_method = "POST"
-	integration_uri = module.job_provider.invoke_arn
+	integration_uri = module.webhook_handler.invoke_arn
 }
 
 
