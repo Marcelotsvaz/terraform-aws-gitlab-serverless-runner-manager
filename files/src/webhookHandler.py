@@ -23,9 +23,11 @@ def main( event, context ):
 			raise
 		
 		gitlabEventData = json.loads( event['body'] )
+		projectId = gitlabEventData['project_id']
 		jobId = gitlabEventData['build_id']
 		jobStatus = gitlabEventData['build_status']
-		projectId = gitlabEventData['project_id']
+		isTag = gitlabEventData['tag']
+		ref = gitlabEventData['ref']
 	except KeyError:	# TODO: Log error message.
 		logging.error( 'Invalid request.' )
 		
@@ -43,8 +45,10 @@ def main( event, context ):
 		FunctionName = os.environ['jobMatchersFunctionArn'],
 		InvocationType = 'Event',
 		Payload = json.dumps( {
+			'projectId': projectId,
 			'jobId': jobId,
-			'projectId': projectId
+			'isTag': isTag,
+			'ref': ref,
 		} ),
 	)
 	

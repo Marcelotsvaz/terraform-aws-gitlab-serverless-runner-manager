@@ -44,15 +44,39 @@ def main( event, context ):
 		matchingRunners = { id: runner for id, runner in runners.items() if runner['run_untagged'] }
 	
 	if not matchingRunners:
-		logging.error( f'No runners matched job {jobId} tags.' )	# TODO
+		logging.error( f'No runners matched job {jobId} tags.' )	# TODO: Fail job?
 		return
 	
-	logging.info( f'Job {jobId} matched runners with ID: {", ".join( matchingRunners )}' )
+	logging.info( f'Job {jobId} tags matched runners with ID: {", ".join( matchingRunners )}' )
+	
+	
+	# Handle unprotected jobs.
+	if unprotectedRunners := { id: runner for id, runner in matchingRunners.items() if runner['access_level'] == 'not_protected' }:
+		_, runner = unprotectedRunners.popitem()
+	else:
+		# Matched runners only accept protected jobs, check if branch or tag is protected.
+		refType = 'tags' if event['isTag'] else 'branches'
+		ref = event['ref']
+		
+		response = requests.get(
+			f'{url}/api/v4/projects/{projectId}/repository/{refType}/{ref}',
+			headers = {
+				'PRIVATE-TOKEN': os.environ['projectToken'],
+			},
+		)
+		
+		if not response.json()['protected']:
+			logging.error( f'No runners matched protected job {jobId}.' )
+			return
+		
+		_, runner = matchingRunners.popitem()
+	
+	logging.info( f'Job {jobId} matched runner with ID: {runner["id"]}' )
 	
 	
 	# Trigger jobRequester function with selected runner.
 	boto3.client( 'lambda' ).invoke(
 		FunctionName = os.environ['jobRequesterFunctionArn'],
 		InvocationType = 'Event',
-		Payload = json.dumps( { 'runner': matchingRunners.popitem()[1] } ),
+		Payload = json.dumps( { 'runner': runner } ),
 	)
