@@ -20,7 +20,7 @@ def main( event, context ):
 	
 	# Get new jobs.
 	runner = event['runner']
-	job = requestJob( os.environ['gitlabUrl'], runner['authentication_token'] )
+	job = requestJob( os.environ['gitlabUrl'], runner )
 	if not job:
 		logging.warning( f'No jobs available for runner {runner["id"]}.' )
 		return
@@ -70,12 +70,41 @@ def main( event, context ):
 
 
 
-def requestJob( gitlabUrl, runnerAuthenticationToken ):
+def requestJob( gitlabUrl, runner ):
 	'''
 	Request a job from GitLab for a specific runner.
 	'''
 	
-	response = requests.post( f'{gitlabUrl}/api/v4/jobs/request', json = { 'token': runnerAuthenticationToken } )
+	response = requests.post( f'{gitlabUrl}/api/v4/jobs/request', json = {
+		'token': runner['authentication_token'],
+		'info': {
+			'features': {
+				'artifacts_exclude': True,
+				'artifacts': True,
+				'cache': True,
+				'cancelable': True,
+				'image': True,
+				'masking': True,
+				'multi_build_steps': True,
+				'proxy': False,
+				'raw_variables': True,
+				'refspecs': True,
+				'return_exit_code': True,
+				'service_variables': True,
+				'services': True,
+				'session': True,
+				'shared': False,
+				'terminal': True,
+				'trace_checksum': True,
+				'trace_reset': True,
+				'trace_size': True,
+				'upload_multiple_artifacts': True,
+				'upload_raw_artifacts': True,
+				'variables': True,
+				'vault_secrets': True,
+			}
+		}
+	} )
 	
 	if response.status_code == 201:
 		return response.json()
