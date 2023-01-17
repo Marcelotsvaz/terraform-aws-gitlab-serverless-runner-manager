@@ -71,7 +71,7 @@ resource "aws_launch_template" "main" {
 
 module "user_data" {
 	source = "gitlab.com/marcelotsvaz/user-data/external"
-	version = "~> 1.0"
+	version = "~> 1.0.1"
 	
 	for_each = var.runners
 	
