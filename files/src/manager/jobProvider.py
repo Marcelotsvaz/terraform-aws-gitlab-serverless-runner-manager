@@ -20,9 +20,6 @@ setattr( TypeDeserializer, '_deserialize_n', lambda _, number: int( number ) )
 
 
 def main( event, context ):
-	logging.getLogger().setLevel( logging.INFO )
-	
-	
 	# Authorization.
 	requestToken = json.loads( event['body'] )['token']
 	runnerTokens = [ runner['authentication_token'] for runner in json.loads( os.environ['runners'] ).values() ]

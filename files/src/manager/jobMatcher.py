@@ -15,9 +15,6 @@ import requests
 
 
 def main( event, context ):
-	logging.getLogger().setLevel( logging.INFO )
-	
-	
 	# Get job tags.
 	url = os.environ['gitlabUrl']
 	projectId = event['projectId']

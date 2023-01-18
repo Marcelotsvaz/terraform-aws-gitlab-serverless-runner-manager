@@ -15,9 +15,6 @@ import boto3
 
 
 def main( event, context ):
-	logging.getLogger().setLevel( logging.INFO )
-	
-	
 	# Get new jobs.
 	runner = event['runner']
 	job = requestJob( os.environ['gitlabUrl'], runner )

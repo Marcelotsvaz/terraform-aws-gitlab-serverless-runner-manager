@@ -14,9 +14,6 @@ import os
 
 
 def main( event, context ):
-	logging.getLogger().setLevel( logging.INFO )
-	
-	
 	# Validate request.
 	try:
 		if event['headers']['X-Gitlab-Event'] != 'Job Hook':
