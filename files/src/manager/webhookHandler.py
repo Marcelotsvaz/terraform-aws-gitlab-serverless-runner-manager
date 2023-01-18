@@ -11,6 +11,8 @@ import json
 import boto3
 import os
 
+from .common import httpStatus
+
 
 
 def main( event, context ):
@@ -28,13 +30,13 @@ def main( event, context ):
 	except KeyError:	# TODO: Log error message.
 		logging.error( 'Invalid request.' )
 		
-		return { 'statusCode': 400 }	# Bad request.
+		return { 'statusCode': httpStatus.badRequest }
 	
 	
 	# Check job status.
 	logging.info( f'Job {jobId} status is {jobStatus}.' )
 	if jobStatus != 'pending':
-		return { 'statusCode': 200 }	# Ok.
+		return { 'statusCode': httpStatus.ok }
 	
 	
 	# Pass pending job to jobRequester lambda.
@@ -49,4 +51,4 @@ def main( event, context ):
 		} ),
 	)
 	
-	return { 'statusCode': 202 }	# Accepted.
+	return { 'statusCode': httpStatus.accepted }

@@ -11,6 +11,8 @@ import json
 import os
 import boto3
 
+from .common import httpStatus
+
 
 
 # Monkey patch boto to convert all DynamoDB numbers to Python integers.
@@ -25,7 +27,7 @@ def main( event, context ):
 	runnerTokens = [ runner['authentication_token'] for runner in json.loads( os.environ['runners'] ).values() ]
 	if requestToken not in runnerTokens:
 		logging.error( 'Invalid runner authentication token.' )
-		return { 'statusCode': 403 }	# Forbidden.
+		return { 'statusCode': httpStatus.forbidden }
 	
 	
 	# Return pending job.
@@ -39,10 +41,10 @@ def main( event, context ):
 				"Content-Type": "application/json",
 			},
 			"body": json.dumps( job['data'] ),
-			"statusCode": 201,	# Created.
+			"statusCode": httpStatus.created,
 		}
 	else:
 		logging.info( f'Terminating worker {workerId}.' )
 		boto3.client( 'ec2' ).terminate_instances( InstanceIds = [ workerId ] )
 		
-		return { "statusCode": 204 } # No content.
+		return { "statusCode": httpStatus.noContent }

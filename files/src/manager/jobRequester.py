@@ -12,6 +12,8 @@ import requests
 import json
 import boto3
 
+from .common import httpStatus
+
 
 
 def main( event, context ):
@@ -103,9 +105,9 @@ def requestJob( gitlabUrl, runner ):
 		}
 	} )
 	
-	if response.status_code == 201:
+	if response.status_code == httpStatus.created:
 		return response.json()
-	elif response.status_code == 204:
+	elif response.status_code == httpStatus.noContent:
 		return None
 	else:
 		raise Exception( f'Invalid status code ({response.status_code}) while requesting job.' )
