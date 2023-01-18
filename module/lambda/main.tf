@@ -22,6 +22,7 @@ resource "aws_lambda_function" "main" {
 	environment {
 		variables = merge( var.environment, {
 			PYTHONPATH = "env/lib/python3.10/site-packages"
+			terraformParameters = jsonencode( var.parameters )
 		} )
 	}
 	

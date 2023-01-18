@@ -9,9 +9,8 @@
 import logging
 import json
 import boto3
-import os
 
-from .common import httpStatus
+from .common import env, httpStatus
 
 
 
@@ -41,7 +40,7 @@ def main( event, context ):
 	
 	# Pass pending job to jobRequester lambda.
 	boto3.client( 'lambda' ).invoke(
-		FunctionName = os.environ['jobMatchersFunctionArn'],
+		FunctionName = env.jobMatchersFunctionArn,
 		InvocationType = 'Event',
 		Payload = json.dumps( {
 			'projectId': projectId,

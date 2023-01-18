@@ -18,7 +18,7 @@ module "webhook_handler" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.webhookHandler.main"
-	environment = { jobMatchersFunctionArn = module.job_matcher.arn }
+	parameters = { jobMatchersFunctionArn = module.job_matcher.arn }
 	
 	policies = [ data.aws_iam_policy_document.webhook_handler ]
 }
@@ -57,10 +57,10 @@ module "job_matcher" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.jobMatcher.main"
-	environment = {
+	parameters = {
 		gitlabUrl = var.gitlab_url
 		projectToken = gitlab_project_access_token.main.token
-		runners = jsonencode( local.runner_config_output )
+		runners = local.runner_config_output
 		jobRequesterFunctionArn = module.job_requester.arn
 	}
 	
@@ -92,9 +92,9 @@ module "job_requester" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.jobRequester.main"
-	environment = {
+	parameters = {
 		gitlabUrl = var.gitlab_url
-		subnetIds = jsonencode( aws_subnet.main[*].id )
+		subnetIds = aws_subnet.main[*].id
 		jobsTableName = aws_dynamodb_table.jobs.name
 	}
 	
@@ -146,8 +146,8 @@ module "job_provider" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.jobProvider.main"
-	environment = {
-		runners = jsonencode( local.runner_config_output )
+	parameters = {
+		runners = local.runner_config_output
 		jobsTableName = aws_dynamodb_table.jobs.name
 	}
 	
@@ -199,7 +199,7 @@ module "authorizer" {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.authorizer.main"
-	environment = { token = random_password.webhook_token.result }
+	parameters = { token = random_password.webhook_token.result }
 }
 
 

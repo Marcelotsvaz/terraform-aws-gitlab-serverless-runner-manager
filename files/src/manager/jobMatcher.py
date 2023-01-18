@@ -7,22 +7,22 @@
 
 
 import logging
-import os
 import json
 import boto3
 import requests
+
+from .common import env
 
 
 
 def main( event, context ):
 	# Get job tags.
-	url = os.environ['gitlabUrl']
 	projectId = event['projectId']
 	jobId = event['jobId']
 	response = requests.get(
-		f'{url}/api/v4/projects/{projectId}/jobs/{jobId}',
+		f'{env.gitlabUrl}/api/v4/projects/{projectId}/jobs/{jobId}',
 		headers = {
-			'PRIVATE-TOKEN': os.environ['projectToken'],
+			'PRIVATE-TOKEN': env.projectToken,
 		},
 	)
 	jobTags = set( response.json()['tag_list'] )
@@ -30,15 +30,14 @@ def main( event, context ):
 	
 	
 	# Get matching runners.
-	runners = json.loads( os.environ['runners'] )
 	matchingRunners = []
 	
 	if jobTags:
 		# Runner must support all tags set in job.
-		matchingRunners = { id: runner for id, runner in runners.items() if not jobTags - set( runner['tag_list'] ) }
+		matchingRunners = { id: runner for id, runner in env.runners.items() if not jobTags - set( runner['tag_list'] ) }
 	else:
 		# If job has no tags any runner with run_untagged set is valid.
-		matchingRunners = { id: runner for id, runner in runners.items() if runner['run_untagged'] }
+		matchingRunners = { id: runner for id, runner in env.runners.items() if runner['run_untagged'] }
 	
 	if not matchingRunners:
 		logging.error( f'No runners matched job {jobId} tags.' )	# TODO: Fail job?
@@ -56,9 +55,9 @@ def main( event, context ):
 		ref = event['ref']
 		
 		response = requests.get(
-			f'{url}/api/v4/projects/{projectId}/repository/{refType}/{ref}',
+			f'{env.gitlabUrl}/api/v4/projects/{projectId}/repository/{refType}/{ref}',
 			headers = {
-				'PRIVATE-TOKEN': os.environ['projectToken'],
+				'PRIVATE-TOKEN': env.projectToken,
 			},
 		)
 		
@@ -73,7 +72,7 @@ def main( event, context ):
 	
 	# Trigger jobRequester function with selected runner.
 	boto3.client( 'lambda' ).invoke(
-		FunctionName = os.environ['jobRequesterFunctionArn'],
+		FunctionName = env.jobRequesterFunctionArn,
 		InvocationType = 'Event',
 		Payload = json.dumps( { 'runner': runner } ),
 	)

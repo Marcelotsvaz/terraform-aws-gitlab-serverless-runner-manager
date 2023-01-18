@@ -7,26 +7,23 @@
 
 
 import logging
-import os
 import requests
-import json
 import boto3
 
-from .common import httpStatus
+from .common import env, httpStatus
 
 
 
 def main( event, context ):
 	# Get new jobs.
 	runner = event['runner']
-	job = requestJob( os.environ['gitlabUrl'], runner )
+	job = requestJob( env.gitlabUrl, runner )
 	if not job:
 		logging.warning( f'No jobs available for runner {runner["id"]}.' )
 		return
 	
 	
 	# Create worker.
-	subnetIds = json.loads( os.environ['subnetIds'] )
 	fleetRequest = boto3.client( 'ec2' ).create_fleet(
 		Type = 'instant',
 		TargetCapacitySpecification = {
@@ -39,7 +36,7 @@ def main( event, context ):
 					'LaunchTemplateId': runner['launch_template_id'],
 					'Version': '$Default',
 				},
-				'Overrides': [ { 'SubnetId': subnetId } for subnetId in subnetIds ],
+				'Overrides': [ { 'SubnetId': subnetId } for subnetId in env.subnetIds ],
 			},
 		],
 	)
@@ -56,7 +53,7 @@ def main( event, context ):
 	jobId = job['job_info']['id']
 	workerId = fleetRequest['Instances'][0]['InstanceIds'][0]
 	workerType = fleetRequest['Instances'][0]['InstanceType']
-	jobs = boto3.resource( 'dynamodb' ).Table( os.environ['jobsTableName'] )
+	jobs = boto3.resource( 'dynamodb' ).Table( env.jobsTableName )
 	jobs.put_item(
 		Item = {
 			'id': jobId,

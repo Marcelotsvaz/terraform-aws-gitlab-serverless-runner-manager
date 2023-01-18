@@ -42,6 +42,12 @@ variable "timeout" {
 	default = 30
 }
 
+variable "parameters" {
+	description = "Parameters automatically injected into module."
+	type = any
+	default = {}
+}
+
 variable "environment" {
 	description = "Environment variables."
 	type = map( string )

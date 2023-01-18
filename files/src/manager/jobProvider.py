@@ -8,10 +8,9 @@
 
 import logging
 import json
-import os
 import boto3
 
-from .common import httpStatus
+from .common import env, httpStatus
 
 
 
@@ -24,7 +23,7 @@ setattr( TypeDeserializer, '_deserialize_n', lambda _, number: int( number ) )
 def main( event, context ):
 	# Authorization.
 	requestToken = json.loads( event['body'] )['token']
-	runnerTokens = [ runner['authentication_token'] for runner in json.loads( os.environ['runners'] ).values() ]
+	runnerTokens = [ runner['authentication_token'] for runner in env.runners.values() ]
 	if requestToken not in runnerTokens:
 		logging.error( 'Invalid runner authentication token.' )
 		return { 'statusCode': httpStatus.forbidden }
@@ -32,7 +31,7 @@ def main( event, context ):
 	
 	# Return pending job.
 	workerId = event['pathParameters']['workerId']
-	jobs = boto3.resource( 'dynamodb' ).Table( os.environ['jobsTableName'] )
+	jobs = boto3.resource( 'dynamodb' ).Table( env.jobsTableName )
 	if job := jobs.delete_item( Key = { 'workerId': workerId }, ReturnValues = 'ALL_OLD' ).get( 'Attributes' ):
 		logging.info( f'Sending job {job["id"]} to worker {workerId}.' )
 		

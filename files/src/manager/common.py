@@ -6,7 +6,11 @@
 
 
 
+import os
+import json
+
 from enum import IntEnum
+from types import SimpleNamespace
 
 
 
@@ -29,3 +33,7 @@ class httpStatus( IntEnum ):
 	
 	# Server error responses.
 	internalServerError = 500
+
+
+
+env = SimpleNamespace( **json.loads( os.environ['terraformParameters'] ) )
