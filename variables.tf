@@ -73,6 +73,13 @@ variable "runners" {
 		min_vcpu = number
 		min_memory_mib = number
 	} ) )
+	
+	validation {
+		condition = alltrue( [
+			for id, runner in var.runners : contains( [ "not_protected", "ref_protected" ], runner["access_level"] )
+		] )
+		error_message = "Expected access_level to be one of [not_protected ref_protected]."
+	}
 }
 
 
