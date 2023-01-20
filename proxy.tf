@@ -7,10 +7,10 @@
 
 
 # 
-# API Gateway.
+# API Gateway
 #-------------------------------------------------------------------------------
 resource "aws_apigatewayv2_api" "main" {
-	name = "api"
+	name = "${var.prefix}-${var.identifier}"
 	protocol_type = "HTTP"
 	
 	tags = {
@@ -32,7 +32,7 @@ resource "aws_apigatewayv2_stage" "main" {
 
 resource "aws_apigatewayv2_authorizer" "main" {
 	api_id = aws_apigatewayv2_api.main.id
-	name = "lambdaAuthorizer"
+	name = "${var.prefix}-${var.identifier}-lambdaAuthorizer"
 	authorizer_type = "REQUEST"
 	authorizer_uri = module.authorizer.invoke_arn
 	authorizer_payload_format_version = "2.0"
@@ -44,7 +44,7 @@ resource "aws_apigatewayv2_authorizer" "main" {
 
 
 # 
-# Webhook Handler Route.
+# Webhook Handler Route
 #-------------------------------------------------------------------------------
 resource "aws_apigatewayv2_route" "webhook_handler" {
 	api_id = aws_apigatewayv2_api.main.id
@@ -65,7 +65,7 @@ resource "aws_apigatewayv2_integration" "webhook_handler" {
 
 
 # 
-# Job Provider Route.
+# Job Provider Route
 #-------------------------------------------------------------------------------
 resource "aws_apigatewayv2_route" "job_provider" {
 	api_id = aws_apigatewayv2_api.main.id
@@ -86,7 +86,7 @@ resource "aws_apigatewayv2_integration" "job_provider" {
 
 
 # 
-# GitLab Proxy Route.
+# GitLab Proxy Route
 #-------------------------------------------------------------------------------
 resource "aws_apigatewayv2_route" "gitlab" {
 	api_id = aws_apigatewayv2_api.main.id

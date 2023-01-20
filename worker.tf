@@ -154,9 +154,8 @@ data "aws_iam_policy_document" "instance_assume_role" {
 
 
 data "aws_iam_policy_document" "instance_role" {
-	# Used by GitLab Runner.
 	statement {
-		sid = "s3WriteRunnerCache"
+		sid = "putRunnerCache"
 		
 		actions = [
 			"s3:GetObject",

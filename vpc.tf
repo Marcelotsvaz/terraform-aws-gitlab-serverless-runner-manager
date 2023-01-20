@@ -7,7 +7,7 @@
 
 
 # 
-# VPC.
+# VPC
 #-------------------------------------------------------------------------------
 resource "aws_vpc" "main" {
 	cidr_block = "10.0.0.0/16"
@@ -65,7 +65,7 @@ resource "aws_default_route_table" "main" {
 
 
 # 
-# Subnets.
+# Subnets
 #-------------------------------------------------------------------------------
 data "aws_availability_zones" "main" {
 	
@@ -97,7 +97,7 @@ resource "aws_subnet" "main" {
 
 
 # 
-# Security.
+# Security
 #-------------------------------------------------------------------------------
 resource "aws_default_network_acl" "main" {
 	default_network_acl_id = aws_vpc.main.default_network_acl_id

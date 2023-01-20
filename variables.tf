@@ -34,7 +34,7 @@ variable "prefix" {
 # }
 
 # variable "vpc_security_group_ids" {
-# 	description = "Set of security group IDs"
+# 	description = "Set of security group IDs."
 # 	type = set( string )
 # }
 
@@ -58,7 +58,7 @@ variable "project_id" {
 # Runners
 #-------------------------------------------------------------------------------
 variable "runners" {
-	description = ""
+	description = "Map of runner configurations."
 	type = map( object( {
 		# Registration.
 		access_level = optional( string, "ref_protected" )

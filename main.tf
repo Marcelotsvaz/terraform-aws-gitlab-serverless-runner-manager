@@ -217,7 +217,7 @@ resource "aws_lambda_permission" "authorizer" {
 # Jobs Database
 #-------------------------------------------------------------------------------
 resource "aws_dynamodb_table" "jobs" {
-	name = "jobs"
+	name = "${var.prefix}-${var.identifier}-jobs"
 	hash_key = "workerId"
 	
 	billing_mode = "PAY_PER_REQUEST"

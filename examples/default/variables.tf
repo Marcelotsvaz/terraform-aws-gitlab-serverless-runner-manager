@@ -7,14 +7,14 @@
 
 
 variable "gitlab_access_token" {
-	description = ""
+	description = "GitLab Personal Access Token with api scope."
 	type = string
 	sensitive = true
 }
 
 
 variable "gitlab_project_id" {
-	description = ""
+	description = "GitLab Project ID."
 	type = string
 }
 

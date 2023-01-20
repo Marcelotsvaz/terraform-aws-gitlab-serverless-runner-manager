@@ -6,7 +6,8 @@
 
 
 
-# Name.
+# 
+# Name
 #-------------------------------------------------------------------------------
 variable "name" {
 	description = "Name of the function."
@@ -14,7 +15,7 @@ variable "name" {
 }
 
 variable "identifier" {
-	description = "Unique identifier used in resources that need a unique name."
+	description = "Unique identifier used in resources that need an unique name."
 	type = string
 }
 
@@ -24,10 +25,11 @@ variable "prefix" {
 }
 
 
-# Code.
+# 
+# Code
 #-------------------------------------------------------------------------------
 variable "source_dir" {
-	description = "Path of module."
+	description = "Path of Python modules."
 	type = string
 }
 
@@ -55,7 +57,8 @@ variable "environment" {
 }
 
 
-# Lambda.
+# 
+# Lambda
 #-------------------------------------------------------------------------------
 variable "create_url" {
 	description = "Create Lambda function URL."
@@ -64,7 +67,8 @@ variable "create_url" {
 }
 
 
-# Permissions.
+# 
+# Permissions
 #-------------------------------------------------------------------------------
 variable "policies" {
 	description = "Set of policies for the Lambda Function IAM role."
@@ -74,8 +78,9 @@ variable "policies" {
 
 
 
-# Locals.
+# 
+# Locals
 #-------------------------------------------------------------------------------
 locals {
-	lambda_function_name = "${var.prefix}-${var.identifier}-lambda"	# Avoid cyclic dependency.
+	lambda_function_name = "${var.prefix}-${var.identifier}"	# Avoid cyclic dependency.
 }

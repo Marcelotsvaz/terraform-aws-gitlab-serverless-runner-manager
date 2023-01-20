@@ -7,15 +7,15 @@
 
 
 # 
-# Lambda Function.
+# Lambda Function
 #-------------------------------------------------------------------------------
 resource "aws_lambda_function" "main" {
 	function_name = local.lambda_function_name
 	role = aws_iam_role.main.arn
 	
 	runtime = "python3.9"
-	filename = data.archive_file.lambda_module.output_path
-	source_code_hash = data.archive_file.lambda_module.output_base64sha256
+	filename = data.archive_file.main.output_path
+	source_code_hash = data.archive_file.main.output_base64sha256
 	handler = var.handler
 	timeout = var.timeout
 	
@@ -35,7 +35,7 @@ resource "aws_lambda_function" "main" {
 }
 
 
-data "archive_file" "lambda_module" {
+data "archive_file" "main" {
 	type = "zip"
 	source_dir = var.source_dir
 	output_path = "/tmp/terraform/${var.prefix}/${var.identifier}/module.zip"
@@ -53,7 +53,7 @@ resource "aws_lambda_function_url" "main" {
 
 
 # 
-# CloudWatch.
+# CloudWatch
 #-------------------------------------------------------------------------------
 resource "aws_cloudwatch_log_group" "main" {
 	name = "/aws/lambda/${local.lambda_function_name}"
@@ -66,24 +66,24 @@ resource "aws_cloudwatch_log_group" "main" {
 
 
 # 
-# Lambda IAM Role.
+# Lambda IAM Role
 #-------------------------------------------------------------------------------
 resource "aws_iam_role" "main" {
-	name = "${var.prefix}-${var.identifier}-lambdaRole"
+	name = "${var.prefix}-${var.identifier}"
 	assume_role_policy = data.aws_iam_policy_document.assume_role.json
 	managed_policy_arns = []
 	
 	inline_policy {
-		name = "${var.prefix}-${var.identifier}-lambdaRoleLogsPolicy"
+		name = "${var.prefix}-${var.identifier}-logs"
 		
-		policy = data.aws_iam_policy_document.write_logs.json
+		policy = data.aws_iam_policy_document.logs.json
 	}
 	
 	dynamic "inline_policy" {
 		for_each = var.policies
 		
 		content {
-			name = "${var.prefix}-${var.identifier}-lambdaRolePolicy"
+			name = "${var.prefix}-${var.identifier}-policy"
 			
 			policy = inline_policy.value.json
 		}
@@ -109,10 +109,9 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 
-data "aws_iam_policy_document" "write_logs" {
-	# Used by Lambda.
+data "aws_iam_policy_document" "logs" {
 	statement {
-		sid = "cloudwatchWriteLogs"
+		sid = "putCloudwatchLogs"
 		
 		actions = [
 			"logs:CreateLogStream",
