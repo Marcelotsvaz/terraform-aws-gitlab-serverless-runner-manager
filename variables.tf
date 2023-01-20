@@ -9,17 +9,17 @@
 # 
 # Name
 #-------------------------------------------------------------------------------
-variable "name" {
+variable name {
 	description = "Name of the instance."
 	type = string
 }
 
-variable "identifier" {
+variable identifier {
 	description = "Unique identifier used in resources that need a unique name."
 	type = string
 }
 
-variable "prefix" {
+variable prefix {
 	description = "Unique prefix used in resources that need a globally unique name."
 	type = string
 }
@@ -42,13 +42,13 @@ variable "prefix" {
 # 
 # GitLab
 #-------------------------------------------------------------------------------
-variable "gitlab_url" {
+variable gitlab_url {
 	description = "URL of the GitLab instance."
 	type = string
 	default = "https://gitlab.com"
 }
 
-variable "project_id" {
+variable project_id {
 	description = "GitLab project ID."
 	type = string
 }
@@ -57,7 +57,7 @@ variable "project_id" {
 # 
 # Runners
 #-------------------------------------------------------------------------------
-variable "runners" {
+variable runners {
 	description = "Map of runner configurations."
 	type = map( object( {
 		# Registration.
@@ -86,7 +86,7 @@ variable "runners" {
 # 
 # Tags
 #-------------------------------------------------------------------------------
-variable "default_tags" {
+variable default_tags {
 	description = "Tags to be applied to all resources."
 	type = map( string )
 	default = {}

@@ -6,11 +6,11 @@
 
 
 
-provider "aws" {
+provider aws {
 	default_tags { tags = local.default_tags }
 }
 
 
-provider "gitlab" {
+provider gitlab {
 	token = var.gitlab_access_token
 }

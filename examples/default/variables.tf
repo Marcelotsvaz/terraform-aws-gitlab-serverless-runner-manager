@@ -6,14 +6,14 @@
 
 
 
-variable "gitlab_access_token" {
+variable gitlab_access_token {
 	description = "GitLab Personal Access Token with api scope."
 	type = string
 	sensitive = true
 }
 
 
-variable "gitlab_project_id" {
+variable gitlab_project_id {
 	description = "GitLab Project ID."
 	type = string
 }

@@ -6,17 +6,17 @@
 
 
 
-data "gitlab_project" "main" {
+data gitlab_project main {
 	path_with_namespace = var.project_id
 }
 
 
-resource "random_password" "webhook_token" {
+resource random_password webhook_token {
 	length = 64
 }
 
 
-resource "gitlab_project_hook" "main" {
+resource gitlab_project_hook main {
 	project = data.gitlab_project.main.id
 	
 	url = "${aws_apigatewayv2_api.main.api_endpoint}${split( " ", aws_apigatewayv2_route.webhook_handler.route_key )[1]}"
@@ -26,7 +26,7 @@ resource "gitlab_project_hook" "main" {
 }
 
 
-resource "gitlab_runner" "main" {
+resource gitlab_runner main {
 	for_each = var.runners
 	
 	registration_token = data.gitlab_project.main.runners_token
@@ -41,7 +41,7 @@ resource "gitlab_runner" "main" {
 }
 
 
-resource "gitlab_project_access_token" "main" {
+resource gitlab_project_access_token main {
 	name = "${var.name} Job Read Token"
 	project = data.gitlab_project.main.id
 	scopes = [ "read_api" ]

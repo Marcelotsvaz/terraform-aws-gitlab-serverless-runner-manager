@@ -9,17 +9,17 @@
 # 
 # Name
 #-------------------------------------------------------------------------------
-variable "name" {
+variable name {
 	description = "Name of the function."
 	type = string
 }
 
-variable "identifier" {
+variable identifier {
 	description = "Unique identifier used in resources that need an unique name."
 	type = string
 }
 
-variable "prefix" {
+variable prefix {
 	description = "Unique prefix used in resources that need a globally unique name."
 	type = string
 }
@@ -28,29 +28,29 @@ variable "prefix" {
 # 
 # Code
 #-------------------------------------------------------------------------------
-variable "source_dir" {
+variable source_dir {
 	description = "Path of Python modules."
 	type = string
 }
 
-variable "handler" {
+variable handler {
 	description = "Lambda function entrypoint."
 	type = string
 }
 
-variable "timeout" {
+variable timeout {
 	description = "Lambda function timeout."
 	type = number
 	default = 30
 }
 
-variable "parameters" {
+variable parameters {
 	description = "Parameters automatically injected into module."
 	type = any
 	default = {}
 }
 
-variable "environment" {
+variable environment {
 	description = "Environment variables."
 	type = map( string )
 	default = {}
@@ -60,7 +60,7 @@ variable "environment" {
 # 
 # Lambda
 #-------------------------------------------------------------------------------
-variable "create_url" {
+variable create_url {
 	description = "Create Lambda function URL."
 	type = bool
 	default = false
@@ -70,7 +70,7 @@ variable "create_url" {
 # 
 # Permissions
 #-------------------------------------------------------------------------------
-variable "policies" {
+variable policies {
 	description = "Set of policies for the Lambda Function IAM role."
 	type = set( object( { json = string } ) )
 	default = []

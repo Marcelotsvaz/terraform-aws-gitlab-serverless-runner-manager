@@ -6,7 +6,7 @@
 
 
 
-module "gitlab_runner" {
+module gitlab_runner {
 	source = "../../"
 	
 	# Name.

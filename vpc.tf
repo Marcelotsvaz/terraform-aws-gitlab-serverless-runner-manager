@@ -9,7 +9,7 @@
 # 
 # VPC
 #-------------------------------------------------------------------------------
-resource "aws_vpc" "main" {
+resource aws_vpc main {
 	cidr_block = "10.0.0.0/16"
 	assign_generated_ipv6_cidr_block = true
 	enable_dns_hostnames = true
@@ -20,7 +20,7 @@ resource "aws_vpc" "main" {
 }
 
 
-resource "aws_vpc_dhcp_options" "main" {
+resource aws_vpc_dhcp_options main {
 	domain_name_servers = [ "AmazonProvidedDNS" ]
 	
 	tags = {
@@ -29,13 +29,13 @@ resource "aws_vpc_dhcp_options" "main" {
 }
 
 
-resource "aws_vpc_dhcp_options_association" "main" {
+resource aws_vpc_dhcp_options_association main {
 	vpc_id = aws_vpc.main.id
 	dhcp_options_id = aws_vpc_dhcp_options.main.id
 }
 
 
-resource "aws_internet_gateway" "main" {
+resource aws_internet_gateway main {
 	vpc_id = aws_vpc.main.id
 	
 	tags = {
@@ -44,7 +44,7 @@ resource "aws_internet_gateway" "main" {
 }
 
 
-resource "aws_default_route_table" "main" {
+resource aws_default_route_table main {
 	default_route_table_id = aws_vpc.main.default_route_table_id
 	
 	route {
@@ -67,7 +67,7 @@ resource "aws_default_route_table" "main" {
 # 
 # Subnets
 #-------------------------------------------------------------------------------
-data "aws_availability_zones" "main" {
+data aws_availability_zones main {
 	
 }
 
@@ -77,7 +77,7 @@ locals {
 }
 
 
-resource "aws_subnet" "main" {
+resource aws_subnet main {
 	count = length( data.aws_availability_zones.main.names )
 	
 	vpc_id = aws_vpc.main.id
@@ -99,7 +99,7 @@ resource "aws_subnet" "main" {
 # 
 # Security
 #-------------------------------------------------------------------------------
-resource "aws_default_network_acl" "main" {
+resource aws_default_network_acl main {
 	default_network_acl_id = aws_vpc.main.default_network_acl_id
 	subnet_ids = aws_subnet.main[*].id
 	
@@ -145,7 +145,7 @@ resource "aws_default_network_acl" "main" {
 }
 
 
-resource "aws_default_security_group" "main" {
+resource aws_default_security_group main {
 	vpc_id = aws_vpc.main.id
 	
 	egress {

@@ -9,7 +9,7 @@
 # 
 # Worker instance.
 #-------------------------------------------------------------------------------
-resource "aws_launch_template" "main" {
+resource aws_launch_template main {
 	for_each = var.runners
 	
 	name = "${var.prefix}-${var.identifier}-launchTemplate-${each.key}"
@@ -69,7 +69,7 @@ resource "aws_launch_template" "main" {
 }
 
 
-module "user_data" {
+module user_data {
 	source = "gitlab.com/marcelotsvaz/user-data/external"
 	version = "~> 1.0.1"
 	
@@ -97,7 +97,7 @@ module "user_data" {
 }
 
 
-data "aws_ami" "main" {
+data aws_ami main {
 	most_recent = true
 	owners = [ "self" ]
 	
@@ -112,7 +112,7 @@ data "aws_ami" "main" {
 # 
 # Instance profile.
 #-------------------------------------------------------------------------------
-resource "aws_iam_instance_profile" "main" {
+resource aws_iam_instance_profile main {
 	name = "${var.prefix}-${var.identifier}-instanceProfile"
 	role = aws_iam_role.instance.name
 	
@@ -122,7 +122,7 @@ resource "aws_iam_instance_profile" "main" {
 }
 
 
-resource "aws_iam_role" "instance" {
+resource aws_iam_role instance {
 	name = "${var.prefix}-${var.identifier}-role"
 	assume_role_policy = data.aws_iam_policy_document.instance_assume_role.json
 	managed_policy_arns = []
@@ -139,7 +139,7 @@ resource "aws_iam_role" "instance" {
 }
 
 
-data "aws_iam_policy_document" "instance_assume_role" {
+data aws_iam_policy_document instance_assume_role {
 	statement {
 		sid = "ec2AssumeRole"
 		
@@ -153,7 +153,7 @@ data "aws_iam_policy_document" "instance_assume_role" {
 }
 
 
-data "aws_iam_policy_document" "instance_role" {
+data aws_iam_policy_document instance_role {
 	statement {
 		sid = "putRunnerCache"
 		

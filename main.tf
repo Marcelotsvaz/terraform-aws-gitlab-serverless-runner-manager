@@ -9,7 +9,7 @@
 # 
 # Webhook Handler
 #-------------------------------------------------------------------------------
-module "webhook_handler" {
+module webhook_handler {
 	source = "./module/lambda"
 	
 	name = "Webhook Handler"
@@ -24,7 +24,7 @@ module "webhook_handler" {
 }
 
 
-data "aws_iam_policy_document" "webhook_handler" {
+data aws_iam_policy_document webhook_handler {
 	statement {
 		sid = "invokeJobMatcherFunction"
 		
@@ -35,7 +35,7 @@ data "aws_iam_policy_document" "webhook_handler" {
 }
 
 
-resource "aws_lambda_permission" "webhook_handler" {
+resource aws_lambda_permission webhook_handler {
 	function_name = module.webhook_handler.function_name
 	statement_id = "lambdaInvokeFunction"
 	principal = "apigateway.amazonaws.com"
@@ -48,7 +48,7 @@ resource "aws_lambda_permission" "webhook_handler" {
 # 
 # Job Matcher
 #-------------------------------------------------------------------------------
-module "job_matcher" {
+module job_matcher {
 	source = "./module/lambda"
 	
 	name = "Job Matcher"
@@ -68,7 +68,7 @@ module "job_matcher" {
 }
 
 
-data "aws_iam_policy_document" "job_matcher" {
+data aws_iam_policy_document job_matcher {
 	statement {
 		sid = "invokeJobRequesterFunction"
 		
@@ -83,7 +83,7 @@ data "aws_iam_policy_document" "job_matcher" {
 # 
 # Job Requester
 #-------------------------------------------------------------------------------
-module "job_requester" {
+module job_requester {
 	source = "./module/lambda"
 	
 	name = "Job Requester"
@@ -102,7 +102,7 @@ module "job_requester" {
 }
 
 
-data "aws_iam_policy_document" "job_requester" {
+data aws_iam_policy_document job_requester {
 	statement {
 		sid = "putJob"
 		
@@ -137,7 +137,7 @@ data "aws_iam_policy_document" "job_requester" {
 # 
 # Job Provider
 #-------------------------------------------------------------------------------
-module "job_provider" {
+module job_provider {
 	source = "./module/lambda"
 	
 	name = "Job Provider"
@@ -155,7 +155,7 @@ module "job_provider" {
 }
 
 
-data "aws_iam_policy_document" "job_provider" {
+data aws_iam_policy_document job_provider {
 	statement {
 		sid = "getJob"
 		
@@ -177,7 +177,7 @@ data "aws_iam_policy_document" "job_provider" {
 }
 
 
-resource "aws_lambda_permission" "job_provider" {
+resource aws_lambda_permission job_provider {
 	function_name = module.job_provider.function_name
 	statement_id = "lambdaInvokeFunction"
 	principal = "apigateway.amazonaws.com"
@@ -190,7 +190,7 @@ resource "aws_lambda_permission" "job_provider" {
 # 
 # Authorizer
 #-------------------------------------------------------------------------------
-module "authorizer" {
+module authorizer {
 	source = "./module/lambda"
 	
 	name = "Authorizer"
@@ -203,7 +203,7 @@ module "authorizer" {
 }
 
 
-resource "aws_lambda_permission" "authorizer" {
+resource aws_lambda_permission authorizer {
 	function_name = module.authorizer.function_name
 	statement_id = "lambdaInvokeFunction"
 	principal = "apigateway.amazonaws.com"
@@ -216,7 +216,7 @@ resource "aws_lambda_permission" "authorizer" {
 # 
 # Jobs Database
 #-------------------------------------------------------------------------------
-resource "aws_dynamodb_table" "jobs" {
+resource aws_dynamodb_table jobs {
 	name = "${var.prefix}-${var.identifier}-jobs"
 	hash_key = "workerId"
 	

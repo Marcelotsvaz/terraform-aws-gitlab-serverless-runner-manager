@@ -9,7 +9,7 @@
 # 
 # Lambda Function
 #-------------------------------------------------------------------------------
-resource "aws_lambda_function" "main" {
+resource aws_lambda_function main {
 	function_name = local.lambda_function_name
 	role = aws_iam_role.main.arn
 	
@@ -35,7 +35,7 @@ resource "aws_lambda_function" "main" {
 }
 
 
-data "archive_file" "main" {
+data archive_file main {
 	type = "zip"
 	source_dir = var.source_dir
 	output_path = "/tmp/terraform/${var.prefix}/${var.identifier}/module.zip"
@@ -43,7 +43,7 @@ data "archive_file" "main" {
 }
 
 
-resource "aws_lambda_function_url" "main" {
+resource aws_lambda_function_url main {
 	count = var.create_url ? 1 : 0
 	
 	function_name = aws_lambda_function.main.function_name
@@ -55,7 +55,7 @@ resource "aws_lambda_function_url" "main" {
 # 
 # CloudWatch
 #-------------------------------------------------------------------------------
-resource "aws_cloudwatch_log_group" "main" {
+resource aws_cloudwatch_log_group main {
 	name = "/aws/lambda/${local.lambda_function_name}"
 	
 	tags = {
@@ -68,7 +68,7 @@ resource "aws_cloudwatch_log_group" "main" {
 # 
 # Lambda IAM Role
 #-------------------------------------------------------------------------------
-resource "aws_iam_role" "main" {
+resource aws_iam_role main {
 	name = "${var.prefix}-${var.identifier}"
 	assume_role_policy = data.aws_iam_policy_document.assume_role.json
 	managed_policy_arns = []
@@ -95,7 +95,7 @@ resource "aws_iam_role" "main" {
 }
 
 
-data "aws_iam_policy_document" "assume_role" {
+data aws_iam_policy_document assume_role {
 	statement {
 		sid = "lambdaAssumeRole"
 		
@@ -109,7 +109,7 @@ data "aws_iam_policy_document" "assume_role" {
 }
 
 
-data "aws_iam_policy_document" "logs" {
+data aws_iam_policy_document logs {
 	statement {
 		sid = "putCloudwatchLogs"
 		
