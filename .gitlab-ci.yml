@@ -1,5 +1,5 @@
 # 
-# VAZ Projects
+# GitLab Serverless Runner Manager
 # 
 # 
 # Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
@@ -27,7 +27,7 @@ gitlabRegistry:
     image: curlimages/curl:7.87.0
     
     variables:
-        moduleName: gitlab-runner-agentless
+        moduleName: gitlab-serverless-runner-manager
         moduleProvider: aws
         moduleVersion: ${CI_COMMIT_TAG}
         tokenHeader: 'JOB-TOKEN: ${CI_JOB_TOKEN}'

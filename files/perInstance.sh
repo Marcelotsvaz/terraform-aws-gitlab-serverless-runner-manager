@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 
-# VAZ Projects
+# GitLab Serverless Runner Manager
 # 
 # 
 # Author: Marcelo Tellier Sartori Vaz <marcelotsvaz@gmail.com>
