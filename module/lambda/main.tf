@@ -80,7 +80,7 @@ resource aws_iam_role main {
 		policy = data.aws_iam_policy_document.logs.json
 	}
 	
-	dynamic "inline_policy" {
+	dynamic inline_policy {
 		for_each = var.policies
 		
 		content {
