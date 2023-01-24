@@ -26,7 +26,7 @@ def main( event, context ):
 	# Validate request.
 	try:
 		if event['headers']['X-Gitlab-Event'] != 'Job Hook':
-			raise KeyError
+			raise ValueError( 'Webhook event isn\'t a job event.' )
 		
 		gitlabEventData = json.loads( event['body'] )
 		projectId = gitlabEventData['project_id']
@@ -34,8 +34,8 @@ def main( event, context ):
 		jobStatus = gitlabEventData['build_status']
 		isTag = gitlabEventData['tag']
 		ref = gitlabEventData['ref']
-	except KeyError:	# TODO: Log error message.
-		logging.error( 'Invalid request.' )
+	except ( KeyError, ValueError, json.JSONDecodeError ):
+		logging.exception( 'Invalid request.' )
 		
 		return { 'statusCode': HttpStatus.BAD_REQUEST }
 	
