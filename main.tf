@@ -18,7 +18,7 @@ module webhook_handler {
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.webhookHandler.main"
-	parameters = { jobMatchersFunctionArn = module.job_matcher.arn }
+	parameters = { jobMatcherFunctionArn = module.job_matcher.arn }
 	
 	policies = [ data.aws_iam_policy_document.webhook_handler ]
 }

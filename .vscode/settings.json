@@ -15,4 +15,5 @@
 			},
 		},
 	},
+	"python.linting.cwd": "files/src",
 }

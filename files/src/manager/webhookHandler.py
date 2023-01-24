@@ -10,15 +10,23 @@ import logging
 import json
 import boto3
 
-from .common import env, httpStatus
+from .common import env, HttpStatus
 
 
 
 def main( event, context ):
+	'''
+	Handle Gitlab job events webhook.
+	Invoke jobMatcher function when job status change to pending.
+	'''
+	
+	del context	# Unused.
+	
+	
 	# Validate request.
 	try:
 		if event['headers']['X-Gitlab-Event'] != 'Job Hook':
-			raise
+			raise KeyError
 		
 		gitlabEventData = json.loads( event['body'] )
 		projectId = gitlabEventData['project_id']
@@ -29,18 +37,18 @@ def main( event, context ):
 	except KeyError:	# TODO: Log error message.
 		logging.error( 'Invalid request.' )
 		
-		return { 'statusCode': httpStatus.badRequest }
+		return { 'statusCode': HttpStatus.BAD_REQUEST }
 	
 	
 	# Check job status.
 	logging.info( f'Job {jobId} status is {jobStatus}.' )
 	if jobStatus != 'pending':
-		return { 'statusCode': httpStatus.ok }
+		return { 'statusCode': HttpStatus.OK }
 	
 	
 	# Pass pending job to jobRequester lambda.
 	boto3.client( 'lambda' ).invoke(
-		FunctionName = env.jobMatchersFunctionArn,
+		FunctionName = env.jobMatcherFunctionArn,
 		InvocationType = 'Event',
 		Payload = json.dumps( {
 			'projectId': projectId,
@@ -50,4 +58,4 @@ def main( event, context ):
 		} ),
 	)
 	
-	return { 'statusCode': httpStatus.accepted }
+	return { 'statusCode': HttpStatus.ACCEPTED }

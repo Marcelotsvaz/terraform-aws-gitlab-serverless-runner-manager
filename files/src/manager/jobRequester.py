@@ -10,11 +10,18 @@ import logging
 import requests
 import boto3
 
-from .common import env, httpStatus
+from .common import env, HttpStatus
 
 
 
 def main( event, context ):
+	'''
+	Request a job from GitLab for a specific runner and launch a worker for it.
+	'''
+	
+	del context	# Unused.
+	
+	
 	# Get new jobs.
 	runner = event['runner']
 	job = requestJob( env.gitlabUrl, runner )
@@ -62,7 +69,9 @@ def main( event, context ):
 		}
 	)
 	
-	logging.info( f'Assigned job {jobId} to worker {workerId} ({workerType}) of runner {runner["id"]}.' )
+	logging.info(
+		f'Assigned job {jobId} to worker {workerId} ({workerType}) of runner {runner["id"]}.'
+	)
 
 
 
@@ -71,7 +80,7 @@ def requestJob( gitlabUrl, runner ):
 	Request a job from GitLab for a specific runner.
 	'''
 	
-	response = requests.post( f'{gitlabUrl}/api/v4/jobs/request', json = {
+	requestData = {
 		'token': runner['authentication_token'],
 		'info': {
 			'features': {
@@ -100,11 +109,18 @@ def requestJob( gitlabUrl, runner ):
 				'vault_secrets': True,
 			}
 		}
-	} )
+	}
 	
-	if response.status_code == httpStatus.created:
+	response = requests.post(
+		url = f'{gitlabUrl}/api/v4/jobs/request',
+		json = requestData,
+		timeout = 5,
+	)
+	
+	if response.status_code == HttpStatus.CREATED:
 		return response.json()
-	elif response.status_code == httpStatus.noContent:
+	
+	if response.status_code == HttpStatus.NO_CONTENT:
 		return None
-	else:
-		raise Exception( f'Invalid status code ({response.status_code}) while requesting job.' )
+	
+	raise Exception( f'Invalid status code ({response.status_code}) while requesting job.' )

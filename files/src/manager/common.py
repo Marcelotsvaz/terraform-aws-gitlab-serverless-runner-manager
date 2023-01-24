@@ -14,25 +14,29 @@ from types import SimpleNamespace
 
 
 
-class httpStatus( IntEnum ):
+class HttpStatus( IntEnum ):
+	'''
+	Enum representing HTTP response status codes.
+	'''
+	
 	# Successful responses.
-	ok = 200
-	created = 201
-	accepted = 202
-	noContent = 204
+	OK = 200
+	CREATED = 201
+	ACCEPTED = 202
+	NO_CONTENT = 204
 	
 	# Redirection responses.
-	found = 302
+	FOUND = 302
 	
 	# Client error responses.
-	badRequest = 400
-	unauthorized = 401
-	forbidden = 403
-	notFound = 404
-	conflict = 409
+	BAD_REQUEST = 400
+	UNAUTHORIZED = 401
+	FORBIDDEN = 403
+	NOT_FOUND = 404
+	CONFLICT = 409
 	
 	# Server error responses.
-	internalServerError = 500
+	INTERNAL_SERVER_ERROR = 500
 
 
 
