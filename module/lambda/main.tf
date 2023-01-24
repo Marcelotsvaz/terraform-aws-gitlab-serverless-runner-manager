@@ -17,11 +17,12 @@ resource aws_lambda_function main {
 	filename = data.archive_file.main.output_path
 	source_code_hash = data.archive_file.main.output_base64sha256
 	handler = var.handler
+	layers = var.layers
 	timeout = var.timeout
 	
 	environment {
 		variables = merge( var.environment, {
-			PYTHONPATH = "env/lib/python3.10/site-packages"
+			PYTHONPATH = "/opt/site-packages"
 			terraformParameters = jsonencode( var.parameters )
 		} )
 	}

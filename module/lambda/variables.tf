@@ -38,6 +38,12 @@ variable handler {
 	type = string
 }
 
+variable layers {
+	description = "Set of Lambda layer ARNs."
+	type = set( string )
+	default = []
+}
+
 variable timeout {
 	description = "Lambda function timeout."
 	type = number
