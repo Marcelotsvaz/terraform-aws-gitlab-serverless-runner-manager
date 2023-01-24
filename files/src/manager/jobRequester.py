@@ -114,7 +114,7 @@ def requestJob( gitlabUrl, runner ):
 	response = requests.post(
 		url = f'{gitlabUrl}/api/v4/jobs/request',
 		json = requestData,
-		timeout = 5,
+		timeout = 30,
 	)
 	
 	if response.status_code == HttpStatus.CREATED:

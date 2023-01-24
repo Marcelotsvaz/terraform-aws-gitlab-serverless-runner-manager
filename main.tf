@@ -95,6 +95,7 @@ module job_requester {
 	source_dir = "${path.module}/files/src"
 	handler = "manager.jobRequester.main"
 	layers = [ aws_lambda_layer_version.python_packages.arn ]
+	timeout = 60
 	parameters = {
 		gitlabUrl = var.gitlab_url
 		subnetIds = aws_subnet.main[*].id
