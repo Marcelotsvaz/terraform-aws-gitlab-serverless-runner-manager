@@ -28,9 +28,7 @@ module webhook_handler {
 data aws_iam_policy_document webhook_handler {
 	statement {
 		sid = "invokeJobMatcherFunction"
-		
 		actions = [ "lambda:InvokeFunction" ]
-		
 		resources = [ module.job_matcher.arn ]
 	}
 }
@@ -73,9 +71,7 @@ module job_matcher {
 data aws_iam_policy_document job_matcher {
 	statement {
 		sid = "invokeJobRequesterFunction"
-		
 		actions = [ "lambda:InvokeFunction" ]
-		
 		resources = [ module.job_requester.arn ]
 	}
 }
@@ -109,29 +105,23 @@ module job_requester {
 data aws_iam_policy_document job_requester {
 	statement {
 		sid = "putJob"
-		
 		actions = [ "dynamodb:PutItem" ]
-		
 		resources = [ aws_dynamodb_table.jobs.arn ]
 	}
 	
 	statement {
 		sid = "createWorker"
-		
 		actions = [
 			"ec2:CreateFleet",
 			"ec2:RunInstances",
 			"ec2:CreateTags",
 		]
-		
 		resources = [ "*" ]
 	}
 	
 	statement {
 		sid = "passWorkerRole"
-		
 		actions = [ "iam:PassRole" ]
-		
 		resources = [ aws_iam_role.instance.arn ]
 	}
 }
@@ -163,20 +153,16 @@ module job_provider {
 data aws_iam_policy_document job_provider {
 	statement {
 		sid = "getJob"
-		
 		actions = [
 			"dynamodb:Scan",
 			"dynamodb:DeleteItem",
 		]
-		
 		resources = [ aws_dynamodb_table.jobs.arn ]
 	}
 	
 	statement {
 		sid = "terminateWorker"
-		
 		actions = [ "ec2:TerminateInstances" ]
-		
 		resources = [ "*" ]
 	}
 }

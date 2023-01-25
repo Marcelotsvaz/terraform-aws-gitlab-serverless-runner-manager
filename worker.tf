@@ -142,13 +142,11 @@ resource aws_iam_role instance {
 data aws_iam_policy_document instance_assume_role {
 	statement {
 		sid = "ec2AssumeRole"
-		
+		actions = [ "sts:AssumeRole" ]
 		principals {
 			type = "Service"
 			identifiers = [ "ec2.amazonaws.com" ]
 		}
-		
-		actions = [ "sts:AssumeRole" ]
 	}
 }
 
@@ -156,14 +154,12 @@ data aws_iam_policy_document instance_assume_role {
 data aws_iam_policy_document instance_role {
 	statement {
 		sid = "putRunnerCache"
-		
 		actions = [
 			"s3:GetObject",
 			"s3:GetObjectVersion",
 			"s3:PutObject",
 			"s3:DeleteObject",
 		]
-		
 		resources = [ "${aws_s3_bucket.main.arn}/${local.bucket_prefix}/*" ]
 	}
 }
