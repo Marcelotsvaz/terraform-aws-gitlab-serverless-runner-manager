@@ -22,21 +22,14 @@ resource aws_launch_template main {
 	ebs_optimized = true
 	
 	instance_requirements {
-		vcpu_count {
-			min = each.value.min_vcpu
-			max = 8
-		}
-		memory_mib {
-			min = each.value.min_memory_mib
-			max = 16384
-		}
-		instance_generations = [ "current" ]
-		excluded_instance_types = [
-			"i3.*",
-			"m4.*",
-			"c4.*",
-			"r4.*",
-		]
+		vcpu_count { min = each.value.min_vcpu }
+		memory_mib { min = each.value.min_memory_mib }
+		
+		# Only include UEFI instances.
+		excluded_instance_types = setsubtract(
+			data.aws_ec2_instance_types.all.instance_types,
+			data.aws_ec2_instance_types.uefi_boot.instance_types,
+		)
 	}
 	
 	block_device_mappings {
@@ -93,6 +86,22 @@ module user_data {
 	environment = {
 		hostname = "gitlab-runner"
 		ssh_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIH7gGmj7aRlkjoPKKM35M+dG6gMkgD9IEZl2UVp6JYPs VAZ Projects SSH Key"
+	}
+}
+
+
+data aws_ec2_instance_types all {
+	filter {
+		name = "supported-usage-class"
+		values = [ "spot" ]
+	}
+}
+
+
+data aws_ec2_instance_types uefi_boot {
+	filter {
+		name = "supported-boot-mode"
+		values = [ "uefi" ]
 	}
 }
 
