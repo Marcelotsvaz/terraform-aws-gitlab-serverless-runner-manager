@@ -37,6 +37,7 @@ def main( event, context ):
 			'DefaultTargetCapacityType': 'spot',
 			'TotalTargetCapacity': 1,
 		},
+		SpotOptions = { 'AllocationStrategy': 'price-capacity-optimized' },
 		LaunchTemplateConfigs = [
 			{
 				'LaunchTemplateSpecification': {
