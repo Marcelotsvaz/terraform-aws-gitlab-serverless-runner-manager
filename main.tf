@@ -10,11 +10,11 @@
 # Webhook Handler
 #-------------------------------------------------------------------------------
 module webhook_handler {
-	source = "./module/lambda"
+	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	version = "~> 0.2.0"
 	
 	name = "Webhook Handler"
-	identifier = "webhookHandler"
-	prefix = "${var.prefix}-${var.identifier}"
+	identifier = "${var.prefix}-${var.identifier}-webhookHandler"
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.webhookHandler.main"
@@ -48,11 +48,11 @@ resource aws_lambda_permission webhook_handler {
 # Job Matcher
 #-------------------------------------------------------------------------------
 module job_matcher {
-	source = "./module/lambda"
+	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	version = "~> 0.2.0"
 	
 	name = "Job Matcher"
-	identifier = "jobMatcher"
-	prefix = "${var.prefix}-${var.identifier}"
+	identifier = "${var.prefix}-${var.identifier}-jobMatcher"
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.jobMatcher.main"
@@ -82,11 +82,11 @@ data aws_iam_policy_document job_matcher {
 # Job Requester
 #-------------------------------------------------------------------------------
 module job_requester {
-	source = "./module/lambda"
+	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	version = "~> 0.2.0"
 	
 	name = "Job Requester"
-	identifier = "jobRequester"
-	prefix = "${var.prefix}-${var.identifier}"
+	identifier = "${var.prefix}-${var.identifier}-jobRequester"
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.jobRequester.main"
@@ -132,11 +132,11 @@ data aws_iam_policy_document job_requester {
 # Job Provider
 #-------------------------------------------------------------------------------
 module job_provider {
-	source = "./module/lambda"
+	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	version = "~> 0.2.0"
 	
 	name = "Job Provider"
-	identifier = "jobProvider"
-	prefix = "${var.prefix}-${var.identifier}"
+	identifier = "${var.prefix}-${var.identifier}-jobProvider"
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.jobProvider.main"
@@ -182,11 +182,11 @@ resource aws_lambda_permission job_provider {
 # Authorizer
 #-------------------------------------------------------------------------------
 module authorizer {
-	source = "./module/lambda"
+	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	version = "~> 0.2.0"
 	
 	name = "Authorizer"
-	identifier = "authorizer"
-	prefix = "${var.prefix}-${var.identifier}"
+	identifier = "${var.prefix}-${var.identifier}-authorizer"
 	
 	source_dir = "${path.module}/files/src"
 	handler = "manager.authorizer.main"
