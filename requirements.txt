@@ -6,18 +6,26 @@
 
 
 
-boto3==1.26.55
+boto3==1.26.84
+boto3-stubs[lambda,dynamodb,ec2]==1.26.84
 requests==2.28.2
 
 
 
 ## The following requirements were added by pip freeze:
-botocore==1.29.55
+botocore==1.29.84
+botocore-stubs==1.29.84
 certifi==2022.12.7
 charset-normalizer==3.0.1
 idna==3.4
 jmespath==1.0.1
+mypy-boto3-dynamodb==1.26.84
+mypy-boto3-ec2==1.26.84
+mypy-boto3-lambda==1.26.80
 python-dateutil==2.8.2
 s3transfer==0.6.0
 six==1.16.0
+types-awscrt==0.16.10
+types-s3transfer==0.6.0.post5
+typing_extensions==4.5.0
 urllib3==1.26.14

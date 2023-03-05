@@ -8,13 +8,16 @@
 
 import logging
 import json
+
+from typing import Any
+
 import boto3
 
 from .common import env, HttpStatus
 
 
 
-def main( event, context ):
+def main( event: dict[str, Any], context: Any ) -> dict[str, Any]:
 	'''
 	Handle Gitlab job events webhook.
 	Invoke jobMatcher function when job status change to pending.
@@ -47,7 +50,7 @@ def main( event, context ):
 	
 	
 	# Pass pending job to jobRequester lambda.
-	boto3.client( 'lambda' ).invoke(
+	boto3.client( 'lambda' ).invoke(	# pyright: ignore [reportUnknownMemberType]
 		FunctionName = env.jobMatcherFunctionArn,
 		InvocationType = 'Event',
 		Payload = json.dumps( {

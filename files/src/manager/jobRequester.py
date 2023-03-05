@@ -7,6 +7,9 @@
 
 
 import logging
+
+from typing import Any, Optional
+
 import requests
 import boto3
 
@@ -14,7 +17,7 @@ from .common import env, HttpStatus
 
 
 
-def main( event, context ):
+def main( event: dict[str, Any], context: Any ) -> None:
 	'''
 	Request a job from GitLab for a specific runner and launch a worker for it.
 	'''
@@ -31,7 +34,7 @@ def main( event, context ):
 	
 	
 	# Create worker.
-	fleetRequest = boto3.client( 'ec2' ).create_fleet(
+	fleetRequest = boto3.client( 'ec2' ).create_fleet(	# pyright: ignore [reportUnknownMemberType]
 		Type = 'instant',
 		TargetCapacitySpecification = {
 			'DefaultTargetCapacityType': 'spot',
@@ -52,17 +55,18 @@ def main( event, context ):
 	for error in fleetRequest['Errors']:
 		logging.warning( error )
 	
-	if len( fleetRequest['Instances'] ) == 0:
+	# Register job.
+	try:
+		jobId = job['job_info']['id']
+		instance = fleetRequest['Instances'][0]
+		workerId = instance['InstanceIds'][0]
+		workerType = instance['InstanceType']
+	except ( KeyError, IndexError ):
 		logging.error( 'Couldn\'t create worker.' )
 		return
 	
-	
-	# Register job.
-	jobId = job['job_info']['id']
-	workerId = fleetRequest['Instances'][0]['InstanceIds'][0]
-	workerType = fleetRequest['Instances'][0]['InstanceType']
-	jobs = boto3.resource( 'dynamodb' ).Table( env.jobsTableName )
-	jobs.put_item(
+	dynamoDb = boto3.resource( 'dynamodb' )	# pyright: ignore [reportUnknownMemberType]
+	dynamoDb.Table( env.jobsTableName ).put_item(
 		Item = {
 			'id': jobId,
 			'workerId': workerId,
@@ -76,7 +80,7 @@ def main( event, context ):
 
 
 
-def requestJob( gitlabUrl, runner ):
+def requestJob( gitlabUrl: str, runner: dict[str, Any] ) -> Optional[dict[str, Any]]:
 	'''
 	Request a job from GitLab for a specific runner.
 	'''
@@ -124,4 +128,11 @@ def requestJob( gitlabUrl, runner ):
 	if response.status_code == HttpStatus.NO_CONTENT:
 		return None
 	
-	raise Exception( f'Invalid status code ({response.status_code}) while requesting job.' )
+	raise InvalidJobResponse( f'Invalid status code ({response.status_code}) while requesting job.' )
+
+
+
+class InvalidJobResponse( Exception ):
+	'''
+	Response from /api/v4/jobs/request has invalid status code.
+	'''

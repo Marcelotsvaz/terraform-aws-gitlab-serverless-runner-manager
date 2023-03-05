@@ -8,6 +8,9 @@
 
 import logging
 import json
+
+from typing import Any
+
 import boto3
 
 from boto3.dynamodb.types import TypeDeserializer
@@ -17,11 +20,12 @@ from .common import env, HttpStatus
 
 
 # Monkey patch boto to convert all DynamoDB numbers to Python integers.
-setattr( TypeDeserializer, '_deserialize_n', lambda _, number: int( number ) )
+# pylint: disable-next = line-too-long
+setattr( TypeDeserializer, '_deserialize_n', lambda _, number: int( number ) )	# pyright: ignore [reportUnknownLambdaType, reportUnknownArgumentType]
 
 
 
-def main( event, context ):
+def main( event: dict[str, Any], context: Any ) -> dict[str, Any]:
 	'''
 	Serve job requests from workers.
 	'''
@@ -39,15 +43,17 @@ def main( event, context ):
 	
 	# Return pending job.
 	workerId = event['pathParameters']['workerId']
-	jobs = boto3.resource( 'dynamodb' ).Table( env.jobsTableName )
-	job = jobs.delete_item(
+	dynamoDb = boto3.resource( 'dynamodb' )	# pyright: ignore [reportUnknownMemberType]
+	job = dynamoDb.Table( env.jobsTableName ).delete_item(
 		Key = { 'workerId': workerId },
 		ReturnValues = 'ALL_OLD',
 	).get( 'Attributes' )
 	
 	if not job:
 		logging.info( f'Terminating worker {workerId}.' )
-		boto3.client( 'ec2' ).terminate_instances( InstanceIds = [ workerId ] )
+		
+		ec2 = boto3.client( 'ec2' )	# pyright: ignore [reportUnknownMemberType]
+		ec2.terminate_instances( InstanceIds = [ workerId ] )
 		
 		return { 'statusCode': HttpStatus.NO_CONTENT }
 	

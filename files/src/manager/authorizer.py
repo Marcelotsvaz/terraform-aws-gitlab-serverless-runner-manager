@@ -6,13 +6,14 @@
 
 
 
+from typing import Any
 from hmac import compare_digest
 
 from .common import env
 
 
 
-def main( event, context ):
+def main( event: dict[str, Any], context: Any ) -> dict[str, Any]:
 	'''
 	Authorize API calls using HTTP headers.
 	'''

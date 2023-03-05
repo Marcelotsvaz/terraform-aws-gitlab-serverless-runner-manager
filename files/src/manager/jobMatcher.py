@@ -8,14 +8,17 @@
 
 import logging
 import json
-import boto3
+
+from typing import Any
+
 import requests
+import boto3
 
 from .common import env
 
 
 
-def main( event, context ):
+def main( event: dict[str, Any], context: Any ) -> None:
 	'''
 	Find a suitable runner for the job based on job tags and protected status.
 	'''
@@ -85,7 +88,7 @@ def main( event, context ):
 	
 	
 	# Trigger jobRequester function with selected runner.
-	boto3.client( 'lambda' ).invoke(
+	boto3.client( 'lambda' ).invoke(	# pyright: ignore [reportUnknownMemberType]
 		FunctionName = env.jobRequesterFunctionArn,
 		InvocationType = 'Event',
 		Payload = json.dumps( { 'runner': runner } ),
