@@ -11,7 +11,7 @@ resource aws_s3_bucket main {
 	force_destroy = true
 	
 	tags = {
-		Name: "${var.name} Bucket"
+		Name = "${var.name} Bucket"
 	}
 }
 
