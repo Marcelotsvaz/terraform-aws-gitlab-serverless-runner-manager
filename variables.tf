@@ -83,16 +83,6 @@ variable runners {
 }
 
 
-# 
-# Tags
-#-------------------------------------------------------------------------------
-variable default_tags {
-	description = "Tags to be applied to all resources."
-	type = map( string )
-	default = {}
-}
-
-
 
 # 
 # Locals

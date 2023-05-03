@@ -35,7 +35,4 @@ module gitlab_runner {
 			min_memory_mib = 4096
 		}
 	}
-	
-	# Tags.
-	default_tags = local.default_tags
 }
