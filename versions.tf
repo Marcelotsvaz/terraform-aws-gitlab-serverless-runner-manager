@@ -15,7 +15,7 @@ terraform {
 		
 		gitlab = {
 			source = "gitlabhq/gitlab"
-			version = ">= 15.9"
+			version = ">= 16.0"
 		}
 		
 		archive = {
@@ -26,6 +26,11 @@ terraform {
 		random = {
 			source = "hashicorp/random"
 			version = ">= 3.4"
+		}
+		
+		time = {
+			source = "hashicorp/time"
+			version = ">= 0.9"
 		}
 	}
 	
