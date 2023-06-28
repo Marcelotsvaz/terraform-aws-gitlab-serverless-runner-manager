@@ -61,13 +61,14 @@ variable runners {
 	description = "Map of runner configurations."
 	type = map( object( {
 		# Registration.
-		access_level = optional( string, "ref_protected" )
 		description = optional( string, "RunnerDesc" )
+		access_level = optional( string, "ref_protected" )
+		docker_privileged = optional( bool, false )
 		locked = optional( bool, false )
-		maximum_timeout = optional( number, 3600 )
-		paused = optional( bool, false )
-		run_untagged = optional( bool, true )
+		run_untagged = optional( bool, false )
 		tag_list = optional( set( string ), [] )
+		paused = optional( bool, false )
+		maximum_timeout = optional( number, 3600 )
 		
 		# Worker.
 		min_vcpu = number

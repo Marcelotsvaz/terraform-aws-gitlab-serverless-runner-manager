@@ -74,6 +74,7 @@ module user_data {
 		runner_authentication_token = gitlab_runner.main[each.key].authentication_token
 		proxy_url = aws_apigatewayv2_api.main.api_endpoint
 		cache_bucket_region = aws_s3_bucket.main.region
+		docker_privileged = each.value.docker_privileged
 		cache_bucket = aws_s3_bucket.main.id
 		cache_prefix = local.bucket_prefix
 	}

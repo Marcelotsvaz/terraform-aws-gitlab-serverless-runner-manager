@@ -28,7 +28,7 @@ check_interval = 1
 	
 	[runners.docker]
 		image = "alpine:latest"
-		privileged = true
+		privileged = ${docker_privileged}
 		tls_verify = true
 		volumes = [ "/certs/client" ]
 	
