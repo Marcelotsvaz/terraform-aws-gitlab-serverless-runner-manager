@@ -49,6 +49,7 @@ resource time_rotating main {
 resource gitlab_project_access_token main {
 	name = "${var.name} Job Read Token"
 	project = data.gitlab_project.main.id
+	access_level = "reporter"
 	scopes = [ "read_api" ]
 	expires_at = formatdate( "YYYY-MM-DD", time_rotating.main.rotation_rfc3339 )
 }
