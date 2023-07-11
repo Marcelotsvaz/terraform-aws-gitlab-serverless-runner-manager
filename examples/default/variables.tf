@@ -13,9 +13,9 @@ variable gitlab_access_token {
 }
 
 
-variable gitlab_project_id {
-	description = "GitLab Project ID."
-	type = string
+variable project_paths {
+	description = "Set of projects that will have access to the runners through the runner's group."
+	type = set( string )
 }
 
 

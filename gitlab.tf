@@ -7,29 +7,16 @@
 
 
 data gitlab_project main {
-	path_with_namespace = var.project_id
-}
-
-
-resource random_password webhook_token {
-	length = 64
-}
-
-
-resource gitlab_project_hook main {
-	project = data.gitlab_project.main.id
+	for_each = var.project_paths
 	
-	url = "${aws_apigatewayv2_api.main.api_endpoint}${split( " ", aws_apigatewayv2_route.webhook_handler.route_key )[1]}"
-	token = random_password.webhook_token.result
-	job_events = true
-	push_events = false
+	path_with_namespace = each.value
 }
 
 
 resource gitlab_runner main {
 	for_each = var.runners
 	
-	registration_token = data.gitlab_project.main.runners_token
+	registration_token = local.host_project.runners_token
 	
 	access_level = each.value.access_level
 	description = each.value.description
@@ -41,14 +28,41 @@ resource gitlab_runner main {
 }
 
 
+resource gitlab_project_runner_enablement main {
+	for_each = local.runner_enablements
+	
+	runner_id = each.value.runner.id
+	project = each.value.project.id
+}
+
+
+resource random_password webhook_token {
+	length = 64
+}
+
+
+resource gitlab_project_hook main {
+	for_each = data.gitlab_project.main
+	
+	project = each.value.id
+	
+	url = "${aws_apigatewayv2_api.main.api_endpoint}${split( " ", aws_apigatewayv2_route.webhook_handler.route_key )[1]}"
+	token = random_password.webhook_token.result
+	job_events = true
+	push_events = false
+}
+
+
 resource time_rotating main {
 	rotation_months = 6
 }
 
 
 resource gitlab_project_access_token main {
-	name = "${var.name} Job Read Token"
-	project = data.gitlab_project.main.id
+	for_each = data.gitlab_project.main
+	
+	name = "${var.name} Job Match Token"
+	project = each.value.id
 	access_level = "reporter"
 	scopes = [ "read_api" ]
 	expires_at = formatdate( "YYYY-MM-DD", time_rotating.main.rotation_rfc3339 )

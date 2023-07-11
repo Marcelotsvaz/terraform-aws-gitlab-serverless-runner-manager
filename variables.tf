@@ -48,9 +48,9 @@ variable gitlab_url {
 	default = "https://gitlab.com"
 }
 
-variable project_id {
-	description = "GitLab project ID."
-	type = string
+variable project_paths {
+	description = "Set of projects that will have access to the runners through the runner's group."
+	type = set( string )
 }
 
 
@@ -77,7 +77,7 @@ variable runners {
 	
 	validation {
 		condition = alltrue( [
-			for id, runner in var.runners : contains( [ "not_protected", "ref_protected" ], runner["access_level"] )
+			for id, runner in var.runners : contains( [ "not_protected", "ref_protected" ], runner.access_level )
 		] )
 		error_message = "Expected access_level to be one of [not_protected ref_protected]."
 	}
@@ -90,9 +90,21 @@ variable runners {
 #-------------------------------------------------------------------------------
 locals {
 	bucket_prefix = "gitlabRunnerCache"
-	runner_config_output = { for id, runner in var.runners : id => merge( runner, {
-		id = id
-		authentication_token = gitlab_runner.main[id].authentication_token
-		launch_template_id = aws_launch_template.main[id].id
+	
+	runner_config_output = { for name, runner in var.runners : name => merge( runner, {
+		name = name
+		id = gitlab_runner.main[name].id
+		authentication_token = gitlab_runner.main[name].authentication_token
+		launch_template_id = aws_launch_template.main[name].id
 	} ) }
+	
+	host_project = data.gitlab_project.main[keys( data.gitlab_project.main )[5]]
+	runner_enablements = {
+		for item in setproduct(
+			values( local.runner_config_output ),
+			values( data.gitlab_project.main ),
+		)
+		: "${item[0].name}-${item[1].path_with_namespace}" => { runner = item[0], project = item[1] }
+		if item[1].path_with_namespace != local.host_project.path_with_namespace
+	}
 }

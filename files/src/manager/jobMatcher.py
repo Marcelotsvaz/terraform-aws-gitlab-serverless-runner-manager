@@ -31,7 +31,7 @@ def main( event: dict[str, Any], context: Any ) -> None:
 	jobId = event['jobId']
 	response = requests.get(
 		url = f'{env.gitlabUrl}/api/v4/projects/{projectId}/jobs/{jobId}',
-		headers = { 'Private-Token': env.projectToken },
+		headers = { 'Private-Token': env.projectTokens[str( projectId )] },
 		timeout = 5,
 	)
 	jobTags = set( response.json()['tag_list'] )
@@ -44,13 +44,13 @@ def main( event: dict[str, Any], context: Any ) -> None:
 	if jobTags:
 		# Runner must support all tags set in job.
 		matchingRunners = {
-			id: runner for id, runner in env.runners.items()
+			name: runner for name, runner in env.runners.items()
 			if not jobTags - set( runner['tag_list'] )
 		}
 	else:
 		# If job has no tags any runner with run_untagged set is valid.
 		matchingRunners = {
-			id: runner for id, runner in env.runners.items()
+			name: runner for name, runner in env.runners.items()
 			if runner['run_untagged']
 		}
 	
@@ -63,7 +63,7 @@ def main( event: dict[str, Any], context: Any ) -> None:
 	
 	# Handle unprotected jobs.
 	if unprotectedRunners := {
-		id: runner for id, runner in matchingRunners.items()
+		name: runner for name, runner in matchingRunners.items()
 		if runner['access_level'] == 'not_protected'
 	}:
 		_, runner = unprotectedRunners.popitem()
@@ -74,7 +74,7 @@ def main( event: dict[str, Any], context: Any ) -> None:
 		
 		response = requests.get(
 			url = f'{env.gitlabUrl}/api/v4/projects/{projectId}/repository/{refType}/{ref}',
-			headers = { 'Private-Token': env.projectToken },
+			headers = { 'Private-Token': env.projectTokens[str( projectId )] },
 			timeout = 5,
 		)
 		
@@ -84,7 +84,7 @@ def main( event: dict[str, Any], context: Any ) -> None:
 		
 		_, runner = matchingRunners.popitem()
 	
-	logging.info( f'Job {jobId} matched runner with ID: {runner["id"]}' )
+	logging.info( f'Job {jobId} matched runner with ID: {runner["name"]}' )
 	
 	
 	# Trigger jobRequester function with selected runner.

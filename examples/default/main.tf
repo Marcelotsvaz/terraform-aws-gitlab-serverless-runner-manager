@@ -15,7 +15,7 @@ module gitlab_runner {
 	identifier = local.identifier
 	
 	# GitLab.
-	project_id = var.gitlab_project_id
+	project_paths = var.project_paths
 	
 	# Runners.
 	runners = {

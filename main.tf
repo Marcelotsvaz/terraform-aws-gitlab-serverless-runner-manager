@@ -59,7 +59,7 @@ module job_matcher {
 	layers = [ aws_lambda_layer_version.python_packages.arn ]
 	parameters = {
 		gitlabUrl = var.gitlab_url
-		projectToken = gitlab_project_access_token.main.token
+		projectTokens = { for token in gitlab_project_access_token.main : token.project => token.token }
 		runners = local.runner_config_output
 		jobRequesterFunctionArn = module.job_requester.arn
 	}
