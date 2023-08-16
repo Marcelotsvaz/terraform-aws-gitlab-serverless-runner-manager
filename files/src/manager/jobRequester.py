@@ -7,6 +7,7 @@
 
 
 import logging
+import time
 
 from typing import Any, Optional
 
@@ -27,9 +28,17 @@ def main( event: dict[str, Any], context: Any ) -> None:
 	
 	# Get new jobs.
 	runner = event['runner']
-	job = requestJob( env.gitlabUrl, runner )
-	if not job:
-		logging.warning( f'No jobs available for runner {runner["id"]}.' )
+	
+	retries = 3
+	for _ in range( retries ):
+		logging.info( f'Requesting job for runner {runner["id"]}.' )
+		
+		if job := requestJob( env.gitlabUrl, runner ):
+			break
+			
+		time.sleep( 1 )
+	else:
+		logging.warning( f'No jobs returned for runner {runner["id"]} after {retries} retries.' )
 		return
 	
 	
@@ -125,7 +134,7 @@ def requestJob( gitlabUrl: str, runner: dict[str, Any] ) -> Optional[dict[str, A
 	if response.status_code == HttpStatus.CREATED:
 		return response.json()
 	
-	if response.status_code == HttpStatus.NO_CONTENT:
+	if response.status_code in ( HttpStatus.NO_CONTENT, HttpStatus.CONFLICT ):
 		return None
 	
 	raise InvalidJobResponse( f'Invalid status code ({response.status_code}) while requesting job.' )
