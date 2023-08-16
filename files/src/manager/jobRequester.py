@@ -29,13 +29,14 @@ def main( event: dict[str, Any], context: Any ) -> None:
 	# Get new jobs.
 	runner = event['runner']
 	
-	retries = 3
-	for _ in range( retries ):
+	maxRetries = 10
+	for retries in range( 1, maxRetries + 1 ):
 		logging.info( f'Requesting job for runner {runner["id"]}.' )
 		
 		if job := requestJob( env.gitlabUrl, runner ):
+			logging.info( f'Received job {job["job_info"]["id"]} for runner {runner["id"]} after {retries} retries.' )
 			break
-			
+		
 		time.sleep( 1 )
 	else:
 		logging.warning( f'No jobs returned for runner {runner["id"]} after {retries} retries.' )
