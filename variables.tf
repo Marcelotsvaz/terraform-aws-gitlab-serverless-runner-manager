@@ -98,7 +98,7 @@ locals {
 		launch_template_id = aws_launch_template.main[name].id
 	} ) }
 	
-	host_project = data.gitlab_project.main[keys( data.gitlab_project.main )[6]]	# TODO: Remove hard-coded value.
+	host_project = data.gitlab_project.main[keys( data.gitlab_project.main )[8]]	# TODO: Remove hard-coded value.
 	runner_enablements = {
 		for item in setproduct(
 			values( local.runner_config_output ),

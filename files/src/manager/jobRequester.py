@@ -34,12 +34,12 @@ def main( event: dict[str, Any], context: Any ) -> None:
 		logging.info( f'Requesting job for runner {runner["id"]}.' )
 		
 		if job := requestJob( env.gitlabUrl, runner ):
-			logging.info( f'Received job {job["job_info"]["id"]} for runner {runner["id"]} after {retries} retries.' )
+			logging.info( f'Received job {job["job_info"]["id"]} for runner {runner["id"]} after {retries} tries.' )
 			break
 		
 		time.sleep( 1 )
 	else:
-		logging.warning( f'No jobs returned for runner {runner["id"]} after {retries} retries.' )
+		logging.warning( f'No jobs returned for runner {runner["id"]} after {retries} tries.' )
 		return
 	
 	

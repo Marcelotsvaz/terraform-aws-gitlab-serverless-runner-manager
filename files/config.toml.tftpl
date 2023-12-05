@@ -15,28 +15,28 @@ check_interval = 1
 
 
 [[runners]]
-	name = "${runner_name}"
+	name = '${runner_name}'
 	id = ${runner_id}
-	url = "${proxy_url}"
-	token = "${runner_authentication_token}"
-	executor = "docker"
-	pre_clone_script = "git config --global http.sslVerify false"	# TODO: Fix SSL.
+	url = '${proxy_url}'
+	token = '${runner_authentication_token}'
+	executor = 'docker'
+	pre_get_sources_script = 'git config --global http.sslVerify false'	# TODO: Fix SSL.
 	
 	[runners.feature_flags]
 		FF_USE_IMPROVED_URL_MASKING = true
 		FF_SCRIPT_SECTIONS = true
 	
 	[runners.docker]
-		image = "alpine:latest"
+		image = 'alpine:latest'
 		privileged = ${docker_privileged}
 		tls_verify = true
-		volumes = [ "/certs/client" ]
+		volumes = [ '/certs/client' ]
 	
 	[runners.cache]
-		Type = "s3"
-		Path = "${cache_prefix}"
+		Type = 's3'
+		Path = '${cache_prefix}'
 		Shared = true
 		
 		[runners.cache.s3]
-			BucketName = "${cache_bucket}"
-			BucketLocation = "${cache_bucket_region}"
+			BucketName = '${cache_bucket}'
+			BucketLocation = '${cache_bucket_region}'
