@@ -65,5 +65,5 @@ resource gitlab_project_access_token main {
 	project = each.value.id
 	access_level = "reporter"
 	scopes = [ "read_api" ]
-	expires_at = formatdate( "YYYY-MM-DD", time_rotating.main.rotation_rfc3339 )
+	expires_at = formatdate( "YYYY-MM-DD", timeadd( time_rotating.main.rotation_rfc3339, "24h" ) )
 }
