@@ -10,7 +10,7 @@
 # Webhook Handler
 #-------------------------------------------------------------------------------
 module webhook_handler {
-	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	source = "gitlab.com/vaz-projects/lambda/aws"
 	version = "~> 0.2.0"
 	
 	name = "Webhook Handler"
@@ -48,7 +48,7 @@ resource aws_lambda_permission webhook_handler {
 # Job Matcher
 #-------------------------------------------------------------------------------
 module job_matcher {
-	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	source = "gitlab.com/vaz-projects/lambda/aws"
 	version = "~> 0.2.0"
 	
 	name = "Job Matcher"
@@ -82,7 +82,7 @@ data aws_iam_policy_document job_matcher {
 # Job Requester
 #-------------------------------------------------------------------------------
 module job_requester {
-	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	source = "gitlab.com/vaz-projects/lambda/aws"
 	version = "~> 0.2.0"
 	
 	name = "Job Requester"
@@ -132,7 +132,7 @@ data aws_iam_policy_document job_requester {
 # Job Provider
 #-------------------------------------------------------------------------------
 module job_provider {
-	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	source = "gitlab.com/vaz-projects/lambda/aws"
 	version = "~> 0.2.0"
 	
 	name = "Job Provider"
@@ -182,7 +182,7 @@ resource aws_lambda_permission job_provider {
 # Authorizer
 #-------------------------------------------------------------------------------
 module authorizer {
-	source = "gitlab.com/marcelotsvaz/lambda/aws"
+	source = "gitlab.com/vaz-projects/lambda/aws"
 	version = "~> 0.2.0"
 	
 	name = "Authorizer"

@@ -58,7 +58,7 @@ resource aws_launch_template main {
 
 
 module user_data {
-	source = "gitlab.com/marcelotsvaz/user-data/external"
+	source = "gitlab.com/vaz-projects/user-data/external"
 	version = "~> 1.0.1"
 	
 	for_each = var.runners
@@ -94,6 +94,11 @@ data aws_ec2_instance_types main {
 	filter {
 		name = "supported-usage-class"
 		values = [ "spot" ]
+	}
+	
+	filter {
+		name = "processor-info.supported-architecture"
+		values = [ "x86_64" ]
 	}
 }
 
